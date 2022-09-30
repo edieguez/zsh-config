@@ -83,8 +83,6 @@ plugins=(
     zsh-syntax-highlighting
 )
 
-source $OH_MY_ZSH/oh-my-zsh.sh
-
 # User configuration
 
 # export MANPATH="/usr/local/man:$MANPATH"
@@ -110,5 +108,26 @@ source $OH_MY_ZSH/oh-my-zsh.sh
 # Example aliases
 # alias zshconfig="mate ~/.zshrc"
 # alias ohmyzsh="mate ~/.oh-my-zsh"
+
+source_if_exist() {
+    if [ -e $1 ]; then
+        source $1
+    fi
+}
+
+source "$ZSH_CUSTOM/system/aliases.sh"
+source_if_exist "$ZSH_CUSTOM/system/aliases_local.sh"
+
+source "$ZSH_CUSTOM/system/environment.sh"
+source_if_exist "$ZSH_CUSTOM/system/environment_local.sh"
+
+source "$ZSH_CUSTOM/system/bundles.sh"
+source_if_exist "$ZSH_CUSTOM/system/bundles_local.sh"
+
+source "$ZSH_CUSTOM/system/functions.sh"
+source_if_exist "$ZSH_CUSTOM/system/functions_local.sh"
+
+# Load Oh my ZSH
+source $OH_MY_ZSH/oh-my-zsh.sh
 
 PATH=".:$ZSH_CUSTOM/bin:$ZSH_CUSTOM/bin/local:$PATH"
