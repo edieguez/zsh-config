@@ -3,8 +3,8 @@
 printf "[34m[i] Starting local backup\n[0m"
 initial_dir=$(pwd)
 
-printf "[34m[i] Moving to $ROOT_DIR\n[0m"
-pushd $ROOT_DIR > /dev/null
+printf "[34m[i] Moving to $ZSH_CUSTOM\n[0m"
+pushd $ZSH_CUSTOM > /dev/null
 
 printf "[34m[i] Searching for local configuration files\n[0m"
 local_files=$(find -L . -type d -name local -or -regex '.*_local.sh$')
