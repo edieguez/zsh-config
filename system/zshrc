@@ -130,4 +130,4 @@ source_if_exist "$ZSH_CUSTOM/system/functions_local.sh"
 # Load Oh my ZSH
 source $OH_MY_ZSH/oh-my-zsh.sh
 
-PATH=".:$ZSH_CUSTOM/bin:$ZSH_CUSTOM/bin/local:$PATH"
+PATH="$ZSH_CUSTOM/bin:$ZSH_CUSTOM/bin/local:$PATH"
