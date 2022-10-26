@@ -1,5 +1,3 @@
-# Needs Git plugin for current_branch method
-
 # Color shortcuts
 RED=$fg[red]
 YELLOW=$fg[yellow]
