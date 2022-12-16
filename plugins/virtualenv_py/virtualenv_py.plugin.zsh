@@ -19,6 +19,11 @@ virtualenv() {
         source $VENV_HOME/$1/bin/activate
         $PYTHON_COMMAND -m pip install -U pip autopep8 ipython
 
+        if [ -f 'requirements.txt' ]; then
+            echo 'Installing requirements.txt'
+            $PYTHON_COMMAND -m pip install -r 'requirements.txt'
+        fi
+
         deactivate
     fi
 }

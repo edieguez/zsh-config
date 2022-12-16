@@ -2,11 +2,11 @@
 
 _activate() {
   if [ -d $VENV_HOME ]; then
-    local virtualenvs=$(ls -l $VENV_HOME | grep '^d' | grep -o '[^ ]*$')
-    _alternative "($virtualenvs)"
-  fi
+    local -a directories=($VENV_HOME/*)
+    directories=("${directories[@]##*/}")
 
-  return 0
+    _describe -t directories 'directories' directories
+  fi
 }
 
-_activate "$@"
+compdef _activate activate
