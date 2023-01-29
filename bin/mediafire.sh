@@ -49,7 +49,7 @@ function init_regex() {
 }
 
 function set_HTTP_sample() {
-    wget -qU "$user_agent" -O $smp_file $1 2> /dev/null
+    torsocks wget -qU "$user_agent" -O $smp_file $1 2> /dev/null
     restore_sample
 }
 
@@ -58,18 +58,18 @@ function restore_sample() {
 }
 
 function draw_regex() {
-    egrep -io "$1" $rgx_file > $swp_file
+    grep -Eio "$1" $rgx_file > $swp_file
     cp $swp_file $rgx_file
 }
 
 function get_file_link() {
-    draw_regex 'href="https:\/\/download[^"]+"'
+    draw_regex 'href="https://download[^"]+"'
     draw_regex '"[^"]+"'
     draw_regex '[^"]+'
 }
 
 function get_file_name () {
-    draw_regex '<div class="filename">[^<]+<\/div>'
+    draw_regex '<div class="filename">[^<]+</div>'
     draw_regex '>[^<]+'
     draw_regex '[^>]+'
 
@@ -94,4 +94,4 @@ for url in $@; do
 done
 
 #  Download section
-[ -s $rgx_file ] && wget -U "$user_agent" -ct0 -i $lnk_file
+[ -s $rgx_file ] && torsocks wget -U "$user_agent" -ct0 -i $lnk_file
