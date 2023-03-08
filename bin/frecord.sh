@@ -37,23 +37,4 @@ record_audio() {
     ffmpeg -y $parsed_inputs -filter_complex amix=inputs=$inputs_length:duration=longest audio.mp3
 }
 
-record_video() {
-    local inputs=$(get_inputs)
-    local inputs_length=$(echo $inputs | wc -w)
-    local parsed_inputs=$(parse_inputs $inputs)
-
-    ffmpeg -y \
-        -framerate 25 \
-        -f x11grab -i :0 \
-        $parsed_inputs \
-        -filter_complex \amix=inputs=$inputs_length:duration=longest \
-        output.mkv
-}
-
-read -p "Record video? [y/N] " -n 1 -r video
-
-if [[ $video =~ ^[Yy]$ ]]; then
-    record_video
-else
-    record_audio
-fi
+record_audio
