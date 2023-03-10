@@ -115,19 +115,19 @@ source_if_exist() {
     fi
 }
 
+source "$ZSH_CUSTOM/system/bundles.sh"
+source_if_exist "$ZSH_CUSTOM/system/bundles_local.sh"
+
+# Load Oh my ZSH
+source $OH_MY_ZSH/oh-my-zsh.sh
+
 source "$ZSH_CUSTOM/system/aliases.sh"
 source_if_exist "$ZSH_CUSTOM/system/aliases_local.sh"
 
 source "$ZSH_CUSTOM/system/environment.sh"
 source_if_exist "$ZSH_CUSTOM/system/environment_local.sh"
 
-source "$ZSH_CUSTOM/system/bundles.sh"
-source_if_exist "$ZSH_CUSTOM/system/bundles_local.sh"
-
 source "$ZSH_CUSTOM/system/functions.sh"
 source_if_exist "$ZSH_CUSTOM/system/functions_local.sh"
-
-# Load Oh my ZSH
-source $OH_MY_ZSH/oh-my-zsh.sh
 
 PATH="$ZSH_CUSTOM/bin:$ZSH_CUSTOM/bin/local:$PATH"
