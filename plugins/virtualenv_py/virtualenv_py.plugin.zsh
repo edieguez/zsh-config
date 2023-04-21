@@ -2,7 +2,17 @@
 : ${PYTHON_COMMAND=python3}
 
 activate() {
-    virtualenv $1 && source $VENV_HOME/$1/bin/activate
+    local venv_name=$1
+
+    if [ -f 'requirements.txt' -a -z "$venv_name" ]; then
+        venv_name=$(basename $(pwd))
+
+        if [ ! -d $VENV_HOME/$1 ]; then
+           echo "Creating $venv_name virtualenv with requirements.txt"
+        fi
+    fi
+
+    virtualenv $venv_name && source $VENV_HOME/$venv_name/bin/activate
 }
 
 virtualenv() {
