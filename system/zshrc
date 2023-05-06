@@ -130,4 +130,8 @@ source_if_exist "$ZSH_CUSTOM/system/environment_local.sh"
 source "$ZSH_CUSTOM/system/functions.sh"
 source_if_exist "$ZSH_CUSTOM/system/functions_local.sh"
 
+if [ -n $CUSTOM_PATH ]; then
+    export PATH="$CUSTOM_PATH:$PATH"
+fi
+
 PATH="$ZSH_CUSTOM/bin:$ZSH_CUSTOM/bin/local:$PATH"
