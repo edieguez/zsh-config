@@ -26,12 +26,10 @@ for sdk_version in "${sdk_versions[@]}"; do
         echo -e "\b -> $new_version]"
         is_default=$(echo "$sdk_list" | grep '>>>' | grep -Eio "$sdk_version")
 
-        yes n | sdk install java $new_version
-
-        echo
-
         if [ -n "$is_default" ]; then
-            sdk default java $new_version
+            yes | sdk install java $new_version
+        else
+            yes n | sdk install java $new_version
         fi
 
         sdk uninstall java $sdk_version
