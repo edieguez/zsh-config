@@ -20,4 +20,7 @@ result=$(curl --silent --request GET \
     --url "https://api.apilayer.com/exchangerates_data/convert?from=$from&to=$to&amount=$amount" \
     --header "apikey: $API_LAYER_TOKEN" | jq -r '.result')
 
-echo "$amount $from is $result $to"
+
+message=$(printf "%'.2f $from is %'.2f $to\n" $amount $result)
+
+echo $message
