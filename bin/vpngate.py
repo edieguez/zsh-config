@@ -6,10 +6,8 @@ Simple Python script to download OpenVPN configs from VPN Gate.
 
 import base64
 import csv
+from argparse import ArgumentParser, Namespace
 from urllib import request
-
-SERVERS_CSV_URL='http://www.vpngate.net/api/iphone'
-HEADERS_COUNT=2
 
 class OpenVPNConfig:
     '''Class to represent an OpenVPN config from VPN Gate.'''
@@ -35,6 +33,9 @@ class OpenVPNConfig:
             openvpn_config_file.write(base64.b64decode(self.base64_config).decode('utf-8'))
 
     def __lt__(self, other) -> bool:
+        if SPEED_SORT:
+            return self.avg_speed() < other.avg_speed()
+
         return self.score < other.score
 
     def __str__(self) -> str:
@@ -77,6 +78,21 @@ def read_user_vpn_choice(choices) -> str:
         print(config)
 
     return input('\nCountry code: ').upper()
+
+def parse_arguments() -> Namespace:
+    '''Parse the command line arguments.'''
+
+    parser = ArgumentParser(
+        description='Python script to download OpenVPN configs from VPN Gate.')
+    parser.add_argument('-s', '--speed', help='sort by average speed', action='store_true')
+
+    return parser.parse_args()
+
+args = parse_arguments()
+
+SERVERS_CSV_URL = 'http://www.vpngate.net/api/iphone'
+HEADERS_COUNT = 2
+SPEED_SORT = args.speed
 
 if __name__ == '__main__':
     vpngate_configs = get_vpngate_configs()
