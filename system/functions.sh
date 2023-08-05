@@ -1,3 +1,10 @@
+docker() {
+    systemctl status docker.service | grep 'active (running)' > /dev/null
+    [ $? -ne 0 ] && sudo systemctl start docker.service
+
+    /usr/bin/docker $@
+}
+
 google-translate() {
     trans en:es "$*"
 }
