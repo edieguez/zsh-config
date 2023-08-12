@@ -8,10 +8,10 @@
 
 set -e
 
-bt_status=$(rfkill | grep bluetooth | awk '{print $4}')
+bt_status=$(rfkill list bluetooth | grep -i 'soft' | awk '{print $3}')
 
-if [ $bt_status = 'blocked' ] || [ $bt_status = 'unblocked' ]; then
-    if [ $bt_status == 'blocked' ]; then
+if [ "$bt_status" = "yes" -o "$bt_status" = "no" ]; then
+    if [ "$bt_status" == "yes" ]; then
         rfkill unblock bluetooth
     else
         rfkill block bluetooth
