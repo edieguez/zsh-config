@@ -8,10 +8,11 @@ target=${1:-$HOME}
 echo "Recursively updating repos in $target"
 
 fd -t directory --hidden '^.git$' $target | while read -r repo; do
-    pushd "$repo/.." 2>&1 >/dev/null
-    echo -e "\nPulling changes in $repo"
+	repo=$(dirname "$repo")
+	pushd "$repo" 2>&1 >/dev/null
+	echo -e "\nPulling changes in $repo"
 
-    git pull
+	git fetch
 
-    popd 2>&1 >/dev/null
+	popd 2>&1 >/dev/null
 done
