@@ -16,13 +16,13 @@ if [ $USER != root ]; then
 fi
 
 echo -e $YELLOW"Cleaning apt cache..."$ENDCOLOR
-aptitude clean
+apt clean
 
 echo -e $YELLOW"Removing old config files..."$ENDCOLOR
-sudo aptitude purge $OLDCONF
+sudo apt purge $OLDCONF
 
 echo -e $YELLOW"Removing old kernels..."$ENDCOLOR
-sudo aptitude purge $OLDKERNELS
+sudo apt purge $OLDKERNELS
 
 echo -e $YELLOW"Emptying every trashes..."$ENDCOLOR
 rm -rf /home/*/.local/share/Trash/*/** &> /dev/null
