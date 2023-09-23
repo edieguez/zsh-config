@@ -19,9 +19,10 @@ help() {
   banner
   echo "[01;34m[i] Usage: $(basename $0) query [options][0m"
   echo '[01;34m    Options:[0m'
-  echo '[01;34m     -c, --categories  Categories (default: 111)[0m'
-  echo '[01;34m     -p, --purity      Purity (default: 100)[0m'
-  echo '[01;34m     -t, --top-range   Top range (default: 1)[0m'
+  echo '[01;34m     -c, --categories  100/101/111*/etc (general/anime/people)[0m'
+  echo '[01;34m     -p, --purity      100*/110/111/etc (sfw/sketchy/nsfw)[0m'
+  echo '[01;34m     -s, --sorting     date_added*, relevance, random, views, favorites, toplist[0m'
+  echo '[01;34m     -t, --top-range   1d, 3d, 1w, 1M*, 3M, 6M, 1y[0m'
   echo '[01;34m     -a, --at-least    At least (default: 1920x1080)[0m'
   echo '[01;34m     -r, --resolutions Resolutions (default: 1920x1080)[0m'
   echo '[01;34m         --ratios      Ratios (default: 16x9)[0m'
@@ -42,6 +43,9 @@ parse_args() {
           ;;
       -p|--purity)
           purity="$2"
+          ;;
+      -s|--sorting)
+          sorting="$2"
           ;;
       -t|--top-range)
           top_range="$2"
@@ -67,7 +71,7 @@ parse_args() {
 }
 
 set_metadata() {
-  metadata=$(curl --silent "$API_URL&q=${Q// /%20}&categories=$CATEGORIES&purity=$PURITY&sorting=date_added&atleast=$ATLEAST&resolutions=$RESOLUTIONS&ratios=$RATIOS&page=$1")
+  metadata=$(curl --silent "$API_URL&q=${Q// /%20}&categories=$CATEGORIES&purity=$PURITY&sorting=$SORTING&top_range=$TOP_RANGE&atleast=$ATLEAST&resolutions=$RESOLUTIONS&ratios=$RATIOS&page=$1")
 }
 
 download_wallpapers() {
@@ -117,6 +121,8 @@ parse_args "$@"
 Q="$1"
 CATEGORIES="${categories:-111}"
 PURITY="${purity:-100}"
+SORTING="${sorting:-date_added}"
+TOP_RANGE="${top_range:-1M}"
 ATLEAST="${at_least:-1920x1080}"
 RESOLUTIONS="${resolutions:-1920x1080}"
 RATIOS="${ratios:-16x9}"
