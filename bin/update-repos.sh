@@ -12,7 +12,7 @@ fd -t directory --hidden '^.git$' $target | while read -r repo; do
 	pushd "$repo" 2>&1 >/dev/null
 	echo -e "\nPulling changes in $repo"
 
-	git fetch
+	git pull --ff-only
 
 	popd 2>&1 >/dev/null
 done
