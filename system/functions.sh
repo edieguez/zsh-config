@@ -15,6 +15,17 @@ docker() {
     /usr/bin/docker $@
 }
 
+gitlog() {
+  git log \
+    --oneline \
+    --abbrev-commit \
+    --color=always \
+    --format="%C(auto)%h %<(10)%an %C(blue)%ad %C(green)%ar %C(auto)%s" \
+    --date=format:'%d-%b-%Y %H:%M:%S' |
+    fzf --ansi --preview "echo {} | awk '{print \$1}' | xargs -I % sh -c 'git show --color=always --stat % && git diff --color=always %~1 %'" |
+    awk '{print $1}' | xargs -I % git show --color=always --stat %
+}
+
 google-translate() {
     trans en:es "$*"
 }
