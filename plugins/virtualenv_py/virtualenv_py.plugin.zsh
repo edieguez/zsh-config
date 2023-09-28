@@ -3,37 +3,26 @@
 
 activate() {
     local venv_name=$1
+    local requirements_file='requirements.txt'
+    [ -z $venv_name -a -f $requirements_file ] && venv_name=$(basename "$PWD")
 
-    if [ -f 'requirements.txt' -a -z "$venv_name" ]; then
-        venv_name=$(basename $(pwd))
-
-        if [ ! -d $VENV_HOME/$1 ]; then
-           echo "Creating $venv_name virtualenv with requirements.txt"
-        fi
-    fi
-
-    virtualenv $venv_name && source $VENV_HOME/$venv_name/bin/activate
-}
-
-virtualenv() {
-    if [ $# = 0 ]; then
-        echo 'Missing argument: Python environment name is required'
+    if [ -z "$venv_name" ]; then
+        echo '[01;31m[i] Error: Missing argument. Provide a Python environment name.[0m'
         return 1
     fi
 
-    [ ! -d $VENV_HOME -o ] && mkdir -v $VENV_HOME
+    if [ -d "$VENV_HOME/$venv_name" ]; then
+        source "$VENV_HOME/$venv_name/bin/activate"
+    else
+        echo "[01;34m[i] Creating and activating virtual environment: $venv_name[0m"
+        $PYTHON_COMMAND -m venv "$VENV_HOME/$venv_name"
+        source "$VENV_HOME/$venv_name/bin/activate"
 
-    if [ ! -d $VENV_HOME/$1 ]; then
-        $PYTHON_COMMAND -m venv $VENV_HOME/$1
-
-        source $VENV_HOME/$1/bin/activate
         $PYTHON_COMMAND -m pip install -U pip autopep8 ipython
 
-        if [ -f 'requirements.txt' ]; then
-            echo 'Installing requirements.txt'
-            $PYTHON_COMMAND -m pip install -r 'requirements.txt'
+        if [ -f $requirements_file ]; then
+            echo "[01;34m[i] Installing packages from $requirements_file[0m"
+            $PYTHON_COMMAND -m pip install -r $requirements_file
         fi
-
-        deactivate
     fi
 }
