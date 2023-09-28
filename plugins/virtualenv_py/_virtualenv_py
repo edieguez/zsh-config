@@ -1,11 +1,16 @@
 #compdef activate
 
 _activate() {
-  if [ -d $VENV_HOME ]; then
-    local -a directories=($VENV_HOME/*)
-    directories=("${directories[@]##*/}")
+  if (( CURRENT == 2 )); then
+    local -a venvs
+    venvs=($VENV_HOME/*(/))
 
-    _describe -t directories 'directories' directories
+    local -a venv_names
+    for dir in $venvs; do
+      venv_names+=(${dir##*/})
+    done
+
+    _describe 'virtual environments' venv_names
   fi
 }
 
