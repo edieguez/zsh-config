@@ -26,6 +26,7 @@ help() {
   echo '[01;34m     -a, --at-least    At least (default: 1920x1080)[0m'
   echo '[01;34m     -r, --resolutions Resolutions (default: 1920x1080)[0m'
   echo '[01;34m         --ratios      Ratios (default: 16x9)[0m'
+  echo '[01;34m         --no-filter   Ignore at-least, resolutions and ratios options[0m'
 }
 
 parse_args() {
@@ -36,28 +37,39 @@ parse_args() {
 
   shift
 
-  while [ $# -ge 2 ]; do
+  while [ $# -ge 1 ]; do
     case "$1" in
       -c|--categories)
           categories="$2"
+          shift 2
           ;;
       -p|--purity)
           purity="$2"
+          shift 2
           ;;
       -s|--sorting)
           sorting="$2"
+          shift 2
           ;;
       -t|--top-range)
           top_range="$2"
+          shift 2
           ;;
       -a|--at-least)
           at_least="$2"
+          shift 2
           ;;
       -r|--resolutions)
           resolutions="$2"
+          shift 2
           ;;
       --ratios)
           ratios="$2"
+          shift 2
+          ;;
+      --no-filter)
+          no_filter=true
+          shift
           ;;
       *)
           echo "[01;31m[e] Unknown option: $1[0m"
@@ -65,13 +77,15 @@ parse_args() {
           exit 1
           ;;
     esac
-
-    shift 2
   done
 }
 
 set_metadata() {
-  metadata=$(curl --silent "$API_URL&q=${Q// /%20}&categories=$CATEGORIES&purity=$PURITY&sorting=$SORTING&top_range=$TOP_RANGE&atleast=$ATLEAST&resolutions=$RESOLUTIONS&ratios=$RATIOS&page=$1")
+  if [ "$no_filter" = true ]; then
+    metadata=$(curl --silent "$API_URL&q=${Q// /%20}&categories=$CATEGORIES&purity=$PURITY&sorting=$SORTING&top_range=$TOP_RANGE&ai_art_filter=0&page=$1")
+  else
+    metadata=$(curl --silent "$API_URL&q=${Q// /%20}&categories=$CATEGORIES&purity=$PURITY&sorting=$SORTING&top_range=$TOP_RANGE&atleast=$ATLEAST&resolutions=$RESOLUTIONS&ratios=$RATIOS&page=$1")
+  fi
 }
 
 download_wallpapers() {
@@ -126,6 +140,7 @@ TOP_RANGE="${top_range:-1M}"
 ATLEAST="${at_least:-1920x1080}"
 RESOLUTIONS="${resolutions:-1920x1080}"
 RATIOS="${ratios:-16x9}"
+NO_FILTER="${no_filter:-false}"
 
 banner
 start_crawler
