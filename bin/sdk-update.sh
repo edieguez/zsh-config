@@ -16,13 +16,13 @@ for sdk_version in "${sdk_versions[@]}"; do
     type=$(echo "$sdk_version" | grep -Eio '([a-z][0-9a-z]+-[^\s]+$|[^-]+$)')
 
     if [[ $type =~ ^r ]]; then
-        new_version=$(echo "$sdk_list" | grep $type | grep -Eio '[0-9]+[\.-][a-z0-9\.-]+$' | sort --reverse | head -n 1)
+        new_version=$(echo "$sdk_list" | grep $type | grep -Eio '[0-9]+[\.-][a-z0-9\.-]+$' | sort --version-sort --reverse | head -n 1)
     else
         base_version=$(echo $sdk_version | grep -Eio '^[0-9]+')
-        new_version=$(echo "$sdk_list" | grep -Eio " $base_version[^|-]+-?$type" | sed 's: ::g' | sort --reverse | head -n 1)
+        new_version=$(echo "$sdk_list" | grep -Eio " $base_version[^|-]+-?$type" | sed 's: ::g' | sort --version-sort --reverse | head -n 1)
     fi
 
-    if [[ $sdk_version < $new_version ]]; then
+    if [ ${#sdk_version} -lt ${#new_version} ] || [[ $sdk_version < $new_version ]]; then
         echo -e "\b -> $new_version]"
         is_default=$(echo "$sdk_list" | grep '>>>' | grep -Eio "$sdk_version")
 
