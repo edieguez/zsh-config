@@ -115,11 +115,11 @@ source_if_exist() {
     fi
 }
 
-source "$ZSH_CUSTOM/system/bundles.sh"
-source_if_exist "$ZSH_CUSTOM/system/bundles_local.sh"
-
 source "$ZSH_CUSTOM/system/environment.sh"
 source_if_exist "$ZSH_CUSTOM/system/environment_local.sh"
+
+source "$ZSH_CUSTOM/system/bundles.sh"
+source_if_exist "$ZSH_CUSTOM/system/bundles_local.sh"
 
 if [ -n $CUSTOM_PATH ]; then
     export PATH="$CUSTOM_PATH:$PATH"
