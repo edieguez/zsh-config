@@ -4,6 +4,8 @@ alias dict='trans en:es -d'
 alias lg=lazygit
 alias mvn-sources='mvn dependency:sources dependency:resolve -Dclassifier=javadoc'
 alias random-man='man $(find /usr/share/man/man1 -type f | shuf | head -1)'
+alias ipv4='curl --silent -4 icanhazip.com'
+alias ipv6='curl --silent -6 icanhazip.com'
 alias youtube-dl-mp3='youtube-dl --add-metadata --extract-audio --audio-format mp3'
 
 # Load aliases for local environment
