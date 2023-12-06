@@ -1,6 +1,8 @@
+alias aria2c='aria2c --file-allocation=none --summary-interval=900'
 alias browse-installed-packages="yay -Qq | fzf --preview 'yay -Qil {}' --layout=reverse --bind 'enter:execute(yay -Qil {} | less)'"
 alias browse-known-packages="yay -Slq | fzf --preview 'yay -Si {}' --layout=reverse"
 alias dict='trans en:es -d'
+alias leech='aria2c --seed-time=0'
 alias lg=lazygit
 alias mvn-sources='mvn dependency:sources dependency:resolve -Dclassifier=javadoc'
 alias random-man='man $(find /usr/share/man/man1 -type f | shuf | head -1)'
