@@ -1,47 +1,41 @@
-# Color shortcuts
-RED=$fg[red]
-YELLOW=$fg[yellow]
-GREEN=$fg[green]
-WHITE=$fg[white]
-BLUE=$fg[blue]
-RED_BOLD=$fg_bold[red]
-YELLOW_BOLD=$fg_bold[yellow]
-GREEN_BOLD=$fg_bold[green]
-WHITE_BOLD=$fg_bold[white]
-BLUE_BOLD=$fg_bold[blue]
-RESET_COLOR=$reset_color
+() {
+  # Color shortcuts
+  CURRENT_DIR=$fg_bold[yellow]
+  USER_AT_HOST=$fg_bold[green]
+  SSH=$fg[red]
+  ERROR_CODE=$fg[red]
 
-if [[ -n $SSH_CONNECTION ]]; then
-    PROMPT="%{$RED_BOLD%}(ssh) "
-else
-    PROMPT=""
-fi
+  # Separators
+  SEP_A=$fg[white]
+  SEP_B=$fg[blue]
 
-# Format for git_prompt_info()
-ZSH_THEME_GIT_PROMPT_PREFIX=""
-ZSH_THEME_GIT_PROMPT_SUFFIX=""
+  BRANCH=$fg_bold[cyan]
+  COMMIT=$fg[magenta]
 
-# Format for parse_git_dirty()
-ZSH_THEME_GIT_PROMPT_DIRTY=" %{$RED%}(*)"
-ZSH_THEME_GIT_PROMPT_CLEAN=""
+  RESET_COLOR=$reset_color
 
-# Format for git_prompt_status()
-ZSH_THEME_GIT_PROMPT_UNMERGED=" %{$RED%}unmerged"
-ZSH_THEME_GIT_PROMPT_DELETED=" %{$RED%}deleted"
-ZSH_THEME_GIT_PROMPT_RENAMED=" %{$YELLOW%}renamed"
-ZSH_THEME_GIT_PROMPT_MODIFIED=" %{$YELLOW%}modified"
-ZSH_THEME_GIT_PROMPT_ADDED=" %{$GREEN%}added"
-ZSH_THEME_GIT_PROMPT_UNTRACKED=" %{$WHITE%}untracked"
+  # Format for git_prompt_status()
+  ZSH_THEME_GIT_PROMPT_UNMERGED="%F{magenta}%B?%b%f "
+  ZSH_THEME_GIT_PROMPT_DELETED="%F{red}%B✖%b%f "
+  ZSH_THEME_GIT_PROMPT_RENAMED="%F{yellow}%B➜%b%f "
+  ZSH_THEME_GIT_PROMPT_MODIFIED="%F{blue}%B⚙%b%f "
+  ZSH_THEME_GIT_PROMPT_ADDED="%F{green}%B✚%b%f "
+  ZSH_THEME_GIT_PROMPT_UNTRACKED="%F{white}%B✭%b%f "
+  ZSH_THEME_GIT_PROMPT_AHEAD="%F{red}%B●%b%f "
 
-# Format for git_prompt_ahead()
-ZSH_THEME_GIT_PROMPT_AHEAD=" %{$RED%}(!)"
+  # Format for git_prompt_long_sha() and git_prompt_short_sha()
+  ZSH_THEME_GIT_PROMPT_SHA_BEFORE=" %{$SEP_A%}[%{$COMMIT%}"
+  ZSH_THEME_GIT_PROMPT_SHA_AFTER="%{$SEP_A%}]"
 
-# Format for git_prompt_long_sha() and git_prompt_short_sha()
-ZSH_THEME_GIT_PROMPT_SHA_BEFORE=" %{$WHITE%}[%{$YELLOW%}"
-ZSH_THEME_GIT_PROMPT_SHA_AFTER="%{$WHITE%}]"
+  RETURN_CODE="%(?..%{$ERROR_CODE%} %?)"
+}
 
-return_code="%(?..%{$RED%}%? %{$RESET_COLOR%})"
+ssh_connection() {
+  if [[ -n $SSH_CONNECTION ]]; then
+    echo -n "%{$SSH%}(ssh) "
+  fi
+}
 
 # Prompt format
-PROMPT+='%{$GREEN_BOLD%}%n@%m%{$WHITE%}:%{$YELLOW%}%~%u$(git_prompt_ahead)%{$RESET_COLOR%} ${return_code}%{$BLUE%}>%{$RESET_COLOR%} '
-RPROMPT='%{$GREEN_BOLD%}$(git_current_branch)$(git_prompt_short_sha)$(git_prompt_status)%{$RESET_COLOR%}'
+PROMPT="$(ssh_connection)%{$USER_AT_HOST%}%n@%m%{$SEP_A%}:%{$CURRENT_DIR%}%~${RETURN_CODE} %{$SEP_B%}>%{$RESET_COLOR%} "
+RPROMPT='$(git_prompt_status)%{$BRANCH%}$(git_current_branch)$(git_prompt_short_sha)%{$RESET_COLOR%}'
