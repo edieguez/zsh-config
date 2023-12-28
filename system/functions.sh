@@ -13,6 +13,10 @@ dropbox() {
     : ${DROPBOX_REMOTE=Dropbox}
     rclone --verbose bisync "$DROPBOX_DIR" "$DROPBOX_REMOTE:" $@
 
+    if [ $? -eq 2 ]; then
+        rclone --verbose bisync --resync "$DROPBOX_DIR" "$DROPBOX_REMOTE:" $@
+    fi
+
     if [ $? -eq 0 ]; then
         notify-send -a "Dropbox" "Bisync $DROPBOX_DIR to $DROPBOX_REMOTE finished" -t 20000
     else
