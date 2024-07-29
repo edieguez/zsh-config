@@ -8,23 +8,6 @@
     curl -F "file=@$1" -Fsecret= https://0x0.st
 }
 
-dropbox() {
-    : ${DROPBOX_DIR=$HOME/Dropbox}
-    : ${DROPBOX_REMOTE=Dropbox}
-    rclone --verbose bisync "$DROPBOX_DIR" "$DROPBOX_REMOTE:" $@
-
-    if [ $? -eq 2 ]; then
-        rclone --verbose bisync --resync "$DROPBOX_DIR" "$DROPBOX_REMOTE:" $@
-    fi
-
-    if [ $? -eq 0 ]; then
-        notify-send -a "Dropbox" "Bisync $DROPBOX_DIR to $DROPBOX_REMOTE finished" -t 20000
-    else
-        notify-send -a "Dropbox" "Bisync $DROPBOX_DIR to $DROPBOX_REMOTE failed" -t 20000
-        return 1
-    fi
-}
-
 docker() {
     systemctl status docker.service | grep 'active (running)' > /dev/null
     [ $? -ne 0 ] && sudo systemctl start docker.service
