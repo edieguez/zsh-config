@@ -6,8 +6,8 @@ mkdir -v $ZSH_HOME
 pushd "$ZSH_HOME"
 
 echo 'Cloning required repositories'
-git clone git@github.com:ohmyzsh/ohmyzsh.git
-git clone git@github.com:edieguez/zsh-config.git
+git clone https://github.com/ohmyzsh/ohmyzsh.git
+git clone https://github.com/edieguez/zsh-config.git
 
 
 # https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/INSTALL.md
