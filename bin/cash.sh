@@ -24,4 +24,3 @@ result=$(curl --silent --request GET \
 message=$(printf "%'.2f $from is %'.2f $to\n" $amount $result)
 
 echo $message
-notify-send --app-name="Cash CLI" -t 20000 "[$from:$to]" "$message"
