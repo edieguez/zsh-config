@@ -8,13 +8,6 @@
     curl -F "file=@$1" -Fsecret= https://0x0.st
 }
 
-docker() {
-    systemctl status docker.service | grep 'active (running)' > /dev/null
-    [ $? -ne 0 ] && sudo systemctl start docker.service
-
-    /usr/bin/docker $@
-}
-
 gitlog() {
   git log \
     --oneline \

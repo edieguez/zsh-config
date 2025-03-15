@@ -121,12 +121,6 @@ source_if_exist "$ZSH_CUSTOM/system/environment_local.sh"
 source "$ZSH_CUSTOM/system/bundles.sh"
 source_if_exist "$ZSH_CUSTOM/system/bundles_local.sh"
 
-if [ -n $CUSTOM_PATH ]; then
-    export PATH="$CUSTOM_PATH:$PATH"
-fi
-
-PATH="$ZSH_CUSTOM/bin:$ZSH_CUSTOM/bin/local:$PATH"
-
 # Load Oh my ZSH
 source $OH_MY_ZSH/oh-my-zsh.sh
 
