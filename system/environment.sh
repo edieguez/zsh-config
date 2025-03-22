@@ -17,11 +17,4 @@ export GOPATH="$GOROOT/gopath"
 
 export SDKMAN_DIR="$HOME/.sdkman"
 
-PATH="$ZSH_CUSTOM/bin/local:$ZSH_CUSTOM/bin/:$CARGO_HOME/bin:$GOROOT/bin:$GOPATH/bin:$PATH"
-
-# Add custom bin directories based on OS
-if [[ $(uname) == "Darwin" ]]; then
-  PATH="$ZSH_CUSTOM/bin/macos:$PATH"
-elif [[ $(uname) == "Linux" ]]; then
-  PATH="$ZSH_CUSTOM/bin/linux:$PATH"
-fi
+export CUSTOM_PATH="$CARGO_HOME/bin:$GOROOT/bin:$GOPATH/bin"

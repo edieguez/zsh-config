@@ -127,3 +127,17 @@ source_if_exist "$ZSH_CUSTOM/system/aliases_local.sh"
 
 source "$ZSH_CUSTOM/system/functions.sh"
 source_if_exist "$ZSH_CUSTOM/system/functions_local.sh"
+
+# Fourth highest precedency: bin directories in CUSTOM_PATH
+# Third highest precedency: binaries in ZSH_CUSTOM/bin
+PATH="$ZSH_CUSTOM/bin/:$CUSTOM_PATH:$PATH"
+
+# Second precedency: directories based on OS
+if [[ $(uname) == "Darwin" ]]; then
+  PATH="$ZSH_CUSTOM/bin/macos:$PATH"
+elif [[ $(uname) == "Linux" ]]; then
+  PATH="$ZSH_CUSTOM/bin/linux:$PATH"
+fi
+
+# Highest precedency: binaries in local directory
+PATH="$ZSH_CUSTOM/bin/local:$PATH"
