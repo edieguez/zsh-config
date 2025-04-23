@@ -10,7 +10,7 @@ alias lg=lazygit
 alias mvn-sources='mvn dependency:sources dependency:resolve -Dclassifier=javadoc'
 alias random-man='man $(find /usr/share/man/man1 -type f | shuf | head -1)'
 alias youtube-dl-mp3='youtube-dl --add-metadata --extract-audio --audio-format mp3'
-alias youtube-dl='yt-dlp --sponsorblock-remove all'
+alias youtube-dl='yt-dlp'
 
 # Load aliases for local environment
 source_if_exist "$ROOT_DIR/system/aliases_local.sh"
