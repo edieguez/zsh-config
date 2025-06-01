@@ -8,6 +8,7 @@ alias ipv6='curl --silent -6 icanhazip.com'
 alias leech='aria2c --seed-time=0'
 alias lg=lazygit
 alias mvn-sources='mvn dependency:sources dependency:resolve -Dclassifier=javadoc'
+alias ping='ping -c4'
 alias random-man='man $(find /usr/share/man/man1 -type f | shuf | head -1)'
 alias youtube-dl-mp3='youtube-dl --add-metadata --extract-audio --audio-format mp3'
 alias youtube-dl='yt-dlp'
