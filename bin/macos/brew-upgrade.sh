@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 cout() {
     format=$1; shift
-    echo -en "[${format}m""  $*""[0m"
+    echo -en "[${format}m""$*""[0m"
 }
 
 main() {
@@ -19,10 +19,10 @@ main() {
         local last_version=$(brew info --cask $package | head -n1 | cut -d' ' -f3)
 
         if [[ $version != $last_version ]]; then
-            cout "01;33" "[!] Updating $package $version -> $last_version\n"
+            cout "01;33" "⚠️ Updating $package $version -> $last_version\n"
             brew reinstall --cask $package
         else
-            cout "01;32" "[!] $package $version is up to date\n"
+            cout "01;32" "✅ $package $version is up to date\n"
         fi
     done
 
