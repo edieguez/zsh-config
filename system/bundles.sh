@@ -1,14 +1,20 @@
 # https://sdkman.io/install
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
+# https://github.com/nvm-sh/nvm
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+
+# https://bun.sh
+[ -s "/opt/homebrew/share/zsh/site-functions/_bun" ] && source "/opt/homebrew/share/zsh/site-functions/_bun"
+
 # Conditional plugin loading
 (( $+commands[aws] )) && plugins+=(aws)
 (( $+commands[git] )) && plugins+=(git)
-(( $+commands[go] )) && plugins+=(golang)
 (( $+commands[gradle] )) && plugins+=(gradle)
 (( $+commands[mvn] )) && plugins+=(mvn)
-
-plugins+=(fzf)
+(( $+commands[nvm] )) && plugins+=(nvm)
+[ -s "$GOROOT/bin/go" ] && plugins+=(golang) # Workaround
 
 # Enable fzf plugin if available
 # https://github.com/junegunn/fzf/discussions/3922

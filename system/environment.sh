@@ -37,6 +37,7 @@ export GOPATH="$GOROOT/gopath"
 
 # SDKMAN for managing JVM languages and tools
 export SDKMAN_DIR="$HOME/.sdkman"
+export NVM_DIR="$HOME/.nvm"
 
 # NVM for managing Node.js versions
 export NVM_DIR="$HOME/.nvm"
