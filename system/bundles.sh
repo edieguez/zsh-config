@@ -1,10 +1,6 @@
 # https://sdkman.io/install
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
-# https://github.com/nvm-sh/nvm
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-
 # https://bun.sh
 [ -s "/opt/homebrew/share/zsh/site-functions/_bun" ] && source "/opt/homebrew/share/zsh/site-functions/_bun"
 
@@ -13,8 +9,17 @@
 (( $+commands[git] )) && plugins+=(git)
 (( $+commands[gradle] )) && plugins+=(gradle)
 (( $+commands[mvn] )) && plugins+=(mvn)
-(( $+commands[nvm] )) && plugins+=(nvm)
 [ -s "$GOROOT/bin/go" ] && plugins+=(golang) # Workaround
+
+# Add nvm lazy load plugin if nvm is installed
+if [ -d "$NVM_DIR" ]; then
+  if [ ! -d "$ZSH_CUSTOM/plugins/zsh-nvm-lazy-load" ]; then
+    echo "NVM is installed, adding zsh-nvm-lazy-load plugin..."
+    git clone https://github.com/undg/zsh-nvm-lazy-load.git "$ZSH_CUSTOM/plugins/zsh-nvm-lazy-load"
+  fi
+
+  plugins+=(zsh-nvm-lazy-load)
+fi
 
 # Enable fzf plugin if available
 # https://github.com/junegunn/fzf/discussions/3922

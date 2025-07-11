@@ -7,3 +7,4 @@ bin/local
 *_local.sh
 
 plugins/zsh-syntax-highlighting
+plugins/zsh-nvm-lazy-load
