@@ -7,7 +7,7 @@ printf "[34m[i] Moving to $ZSH_CUSTOM\n[0m"
 pushd $ZSH_CUSTOM > /dev/null
 
 printf "[34m[i] Searching for local configuration files\n[0m"
-local_files=$(find -L . -type d -name local -or -regex '.*_local.sh$')
+local_files=$(find -L . -type d -name local -or -regex '.*\.local.sh$')
 
 if [ -n "$local_files" ]; then
     printf "[34m[i] Local configuration files found\n[0m"

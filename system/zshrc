@@ -113,30 +113,42 @@ source_if_exist() {
     fi
 }
 
+declare PLATFORM
+
+if [[ $(uname) == "Darwin" ]]; then
+    PLATFORM="macos"
+elif [[ $(uname) == "Linux" ]]; then
+    PLATFORM="linux"
+else
+    PLATFORM="unknown"
+fi
+
 source "$ZSH_CUSTOM/system/environment.sh"
-source_if_exist "$ZSH_CUSTOM/system/environment_local.sh"
+source_if_exist "$ZSH_CUSTOM/system/$PLATFORM/environment.sh"
+source_if_exist "$ZSH_CUSTOM/system/environment.local.sh"
 
 source "$ZSH_CUSTOM/system/bundles.sh"
-source_if_exist "$ZSH_CUSTOM/system/bundles_local.sh"
+source_if_exist "$ZSH_CUSTOM/system/$PLATFORM/bundles.sh"
+source_if_exist "$ZSH_CUSTOM/system/bundles.local.sh"
 
 # Load Oh my ZSH
 source $OH_MY_ZSH/oh-my-zsh.sh
 
 source "$ZSH_CUSTOM/system/aliases.sh"
-source_if_exist "$ZSH_CUSTOM/system/aliases_local.sh"
+source_if_exist "$ZSH_CUSTOM/system/$PLATFORM/aliases.sh"
+source_if_exist "$ZSH_CUSTOM/system/aliases.local.sh"
 
 source "$ZSH_CUSTOM/system/functions.sh"
-source_if_exist "$ZSH_CUSTOM/system/functions_local.sh"
+source_if_exist "$ZSH_CUSTOM/system/$PLATFORM/functions.sh"
+source_if_exist "$ZSH_CUSTOM/system/functions.local.sh"
 
 # Fourth highest precedency: bin directories in CUSTOM_PATH
 # Third highest precedency: binaries in ZSH_CUSTOM/bin
 PATH="$ZSH_CUSTOM/bin/:$CUSTOM_PATH:$PATH"
 
 # Second precedency: directories based on OS
-if [[ $(uname) == "Darwin" ]]; then
-  PATH="$ZSH_CUSTOM/bin/macos:$PATH"
-elif [[ $(uname) == "Linux" ]]; then
-  PATH="$ZSH_CUSTOM/bin/linux:$PATH"
+if [[ $PLATFORM != "unknown" ]]; then
+    PATH="$ZSH_CUSTOM/bin/$PLATFORM:$PATH"
 fi
 
 # Highest precedency: binaries in local directory

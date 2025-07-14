@@ -2,9 +2,8 @@
 *.antigen-compat
 *.zwc
 
-bin/antibody
 bin/local
-*_local.sh
+*.local.sh
 
 plugins/zsh-syntax-highlighting
 plugins/zsh-nvm-lazy-load

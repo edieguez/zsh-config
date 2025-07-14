@@ -1,0 +1,2 @@
+alias browse-installed-packages="yay -Qq | fzf --preview 'yay -Qil {}' --layout=reverse --bind 'enter:execute(yay -Qil {} | less)'"
+alias browse-known-packages="yay -Slq | fzf --preview 'yay -Si {}' --layout=reverse"
