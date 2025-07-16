@@ -64,33 +64,33 @@ if [[ -n "$black_hole_device" ]]; then
 fi
 
 # Start microphone audio capture with sox
-echo "  🎙️ Capturing microphone audio"
-sox -q -t coreaudio "Nameless's Buds3 Pro 1" -r 48000 -c 2 -t mp3 "$tmp_mic_audio_file" 2> /dev/null & SOX_MIC_PID=$!
+# echo "  🎙️ Capturing microphone audio"
+# sox -q -t coreaudio "Nameless's Buds3 Pro 1" -r 48000 -c 2 -t mp3 "$tmp_mic_audio_file" 2> /dev/null & SOX_MIC_PID=$!
 
 # Capture screen with hardware encoding + bitrate control
 echo "  🖥️ Capturing screen"
-ffmpeg -loglevel quiet -stats \
-  -f avfoundation \
-  -i "Capture screen 0:MacBook Pro Microphone" \
-  -framerate 25 \
-  -vf "scale=trunc(iw/4)*2:trunc(ih/4)*2" \
-  -vcodec libx264 -crf 24 \
-  "$tmp_video_file" 2> /dev/null
+# ffmpeg -loglevel quiet -stats \
+#   -f avfoundation \
+#   -i "Capture screen 0:MacBook Pro Microphone" \
+#   -framerate 25 \
+#   -vf "scale=trunc(iw/4)*2:trunc(ih/4)*2" \
+#   -vcodec libx264 -crf 24 \
+#   "$tmp_video_file" 2> /dev/null
 
 stop_audio_capture
 
 # Merge audio + video using GPU encoder
 echo "🧬 Merging audio and video..."
 # ffmpeg -loglevel quiet -stats \
-ffmpeg -loglevel quiet -stats \
-  -i "$tmp_video_file" \
-  -i "$tmp_internal_audio_file" \
-  -i "$tmp_mic_audio_file" \
-  -filter_complex "[1:a][2:a]amix=inputs=2:duration=shortest[aout]" \
-  -map 0:v \
-  -map "[aout]" \
-  -c:v copy \
-  -c:a aac -shortest "$output_file"
+# ffmpeg -loglevel quiet -stats \
+#   -i "$tmp_video_file" \
+#   -i "$tmp_internal_audio_file" \
+#   -i "$tmp_mic_audio_file" \
+#   -filter_complex "[1:a][2:a]amix=inputs=2:duration=shortest[aout]" \
+#   -map 0:v \
+#   -map "[aout]" \
+#   -c:v copy \
+#   -c:a aac -shortest "$output_file"
 
 echo "✅ Saved as $output_file"
 
