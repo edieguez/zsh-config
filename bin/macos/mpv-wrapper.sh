@@ -44,7 +44,7 @@ fi
 
 notify "Launching MPV with URL $clipboard"
 
-mpv "$clipboard" || {
+mpv --hwdec=videotoolbox --ao=coreaudio --audio-buffer=0.5 "$clipboard" || {
     notify_error "MPV launch failed: $?"
     exit 1
 }
