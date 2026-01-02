@@ -27,6 +27,7 @@ help() {
   echo '[01;34m     -r, --resolutions Resolutions (default: 1920x1080)[0m'
   echo '[01;34m         --ratios      Ratios (default: 16x9)[0m'
   echo '[01;34m         --no-filter   Ignore at-least, resolutions and ratios options[0m'
+  echo '[01;34m     -u, --update      Update existing wallpapers in the target directory[0m'
 }
 
 parse_args() {
@@ -71,6 +72,10 @@ parse_args() {
           no_filter=true
           shift
           ;;
+      -u|--update)
+          update=true
+          shift
+          ;;
       *)
           echo "[01;31m[e] Unknown option: $1[0m"
           help
@@ -90,7 +95,7 @@ set_metadata() {
 
 download_wallpapers() {
   local links=$(echo $metadata | jq -r '.data[].path')
-  wget --quiet --show-progress --directory-prefix "$WALLHAVEN_DIR" -i <(echo "$links")
+  wget --continue --quiet --show-progress --directory-prefix "$WALLHAVEN_DIR" -i <(echo "$links")
 }
 
 start_crawler() {
@@ -107,8 +112,9 @@ start_crawler() {
 
   echo "[01;34m[i] Found $total_wallpapers wallpapers[0m"
 
-  if [ -d "$WALLHAVEN_DIR" ]; then
-    rm -r "$WALLHAVEN_DIR"
+  if [[ -d "$WALLHAVEN_DIR" && "$update" = true ]]; then
+    echo "[01;34m[i] Updating existing wallpapers in $WALLHAVEN_DIR[0m"
+    rm -rf "$WALLHAVEN_DIR"
   fi
 
   trap show_summary INT
