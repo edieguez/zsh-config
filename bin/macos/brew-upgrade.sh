@@ -4,8 +4,6 @@ cout() {
     echo -en "[${format}m""$*""[0m"
 }
 
-: ${BREW_LEGACY_UPDATE:=0}
-
 main() {
     # Set the Internal Field Separator to 'new line'
     local IFS='
@@ -13,18 +11,7 @@ main() {
     brew update
     brew upgrade
 
-    if [[ $BREW_LEGACY_UPDATE -eq 1 ]]; then
-        cout "01;33" "⚠️ Upgrading all casks (legacy mode)\n"
-        brew_legacy_update
-    else
-        cout "01;33" "⚠️ Upgrading all casks\n"
-        brew upgrade --cask
-    fi
-
-    brew cleanup
-}
-
-brew_legacy_update() {
+    cout "01;33" "⚠️ Upgrading all casks\n"
     packages="$(brew list --cask --versions)"
 
     for line in $packages; do
@@ -39,6 +26,8 @@ brew_legacy_update() {
             cout "01;32" "✅ $package $version is up to date\n"
         fi
     done
+
+    brew cleanup
 }
 
 # Invoke the main function
