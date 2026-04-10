@@ -5,22 +5,29 @@ cout() {
 }
 
 main() {
+    # Check if Homebrew is installed
+    if ! command -v brew &> /dev/null; then
+        cout "01;31" "❌ Homebrew is not installed. Please install it first.\n"
+        exit 1
+    fi
+
+    # Ensure brew update and upgrade succeed
+    brew update || { cout "01;31" "❌ Failed to update Homebrew\n"; exit 1; }
+    brew upgrade || { cout "01;31" "❌ Failed to upgrade Homebrew\n"; exit 1; }
+
     # Set the Internal Field Separator to 'new line'
     local IFS='
 '
-    brew update
-    brew upgrade
-
-    cout "01;33" "⚠️ Upgrading all casks\n"
+    cout "01;34" "ℹ️ Upgrading all casks\n"
     packages="$(brew list --cask --versions)"
 
     for line in $packages; do
         local package=$(echo $line | cut -d' ' -f1)
         local version=$(echo $line | cut -d' ' -f2)
-        local last_version=$(brew info --cask $package | head -n1 | cut -d' ' -f3)
+        local last_version=$(brew info --cask $package | sed -n 's/^==>.*: \([^ ]*\).*/\1/p')
 
         if [[ $version != $last_version ]]; then
-            cout "01;33" "⚠️ Updating $package $version -> $last_version\n"
+            cout "01;34" "ℹ️ Updating $package $version -> $last_version\n"
             brew reinstall --cask $package
         else
             cout "01;32" "✅ $package $version is up to date\n"
