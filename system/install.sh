@@ -10,8 +10,8 @@ git clone https://github.com/ohmyzsh/ohmyzsh.git
 git clone https://github.com/edieguez/zsh-config.git
 
 
-# https://github.com/zsh-users/zsh-syntax-highlighting/blob/master/INSTALL.md
-git clone https://github.com/zsh-users/zsh-syntax-highlighting.git $ZSH_CUSTOM/plugins/zsh-syntax-highlighting
+# https://github.com/zdharma-continuum/fast-syntax-highlighting
+git clone https://github.com/zdharma-continuum/fast-syntax-highlighting.git $ZSH_CUSTOM/plugins/fast-syntax-highlighting
 
 popd
 

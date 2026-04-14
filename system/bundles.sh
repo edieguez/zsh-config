@@ -1,5 +1,12 @@
 # https://sdkman.io/install
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
+# Lazy-load SDKMAN: defer sourcing the slow init script until first use of `sdk`
+if [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
+    sdk() {
+        unfunction sdk
+        source "$HOME/.sdkman/bin/sdkman-init.sh"
+        sdk "$@"
+    }
+fi
 
 # https://bun.sh
 [ -s "/opt/homebrew/share/zsh/site-functions/_bun" ] && source "/opt/homebrew/share/zsh/site-functions/_bun"

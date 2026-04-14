@@ -5,5 +5,5 @@
 bin/local
 *.local.sh
 
-plugins/zsh-syntax-highlighting
+plugins/fast-syntax-highlighting
 plugins/zsh-nvm-lazy-load
