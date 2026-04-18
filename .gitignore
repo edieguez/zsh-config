@@ -7,3 +7,4 @@ bin/local
 
 plugins/fast-syntax-highlighting
 plugins/zsh-nvm-lazy-load
+/CLAUDE.md
