@@ -52,27 +52,4 @@ git_sync_status() {
 
 PROMPT="$(ssh_connection)%{$USER_AT_HOST%}%n@%m%{$SEP_A%}:%{$CURRENT_DIR%}%~${RETURN_CODE} %{$SEP_B%}>%{$RESET_COLOR%} "
 
-_aya_git_rprompt() {
-  git rev-parse --git-dir &>/dev/null || return
-  echo -n "$(git_sync_status)$(git_staged_status)$(git_prompt_status)%{$BRANCH%}$(git_current_branch)$(git_prompt_short_sha)%{$RESET_COLOR%}"
-}
-
-_aya_async_callback() {
-  local fd=$1
-  RPROMPT="$(cat <&$fd)"
-  exec {fd}<&-
-  _aya_async_fd=
-  zle reset-prompt
-}
-
-_aya_precmd() {
-  if (( _aya_async_fd > 0 )); then
-    zle -F $_aya_async_fd 2>/dev/null
-    exec {_aya_async_fd}<&-
-  fi
-  RPROMPT=
-  exec {_aya_async_fd}< <(_aya_git_rprompt)
-  (( _aya_async_fd > 0 )) && zle -F $_aya_async_fd _aya_async_callback
-}
-
-precmd_functions+=(_aya_precmd)
+RPROMPT='$(git_sync_status)$(git_staged_status)$(git_prompt_status)%{$BRANCH%}$(git_current_branch)$(git_prompt_short_sha)%{$RESET_COLOR%}'
