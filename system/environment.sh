@@ -6,11 +6,8 @@ setopt HIST_IGNORE_SPACE
 setopt HIST_FIND_NO_DUPS
 setopt HIST_SAVE_NO_DUPS
 
-# Simple preview at the right using bat. Fallback to cat if bat is not installed
 export FZF_DEFAULT_OPTS='
   --height=60% --layout=reverse --border
-  --preview="if [[ -d {} ]]; then ls -lAh --color=always {}; elif command -v bat &>/dev/null; then bat --style=numbers,changes --color=always --line-range :500 {}; else cat {}; fi"
-  --preview-window=right:50%:wrap
 '
 export FZF_EXCLUDED_DIRS=(
   # Language/tool build and cache
