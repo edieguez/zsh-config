@@ -6,23 +6,6 @@ setopt HIST_IGNORE_SPACE
 setopt HIST_FIND_NO_DUPS
 setopt HIST_SAVE_NO_DUPS
 
-export FZF_DEFAULT_OPTS='
-  --height=60% --layout=reverse --border
-'
-export FZF_EXCLUDED_DIRS=(
-  # Language/tool build and cache
-  __pycache__ .angular .cache .mypy_cache .venv .next node_modules bower_components dist build out coverage target elm-stuff .cargo .pnp .pnp.js
-
-  # Dev tools and metadata
-  .vscode .idea .git .hg .svn .m2 .npm .nvm .sdkman terraform.tfstate.d
-
-  # macOS system
-  .DS_Store .AppleDouble .Spotlight-V100 .Trash .Trashes Library
-
-  # Linux system
-  lost+found .proc .sys .dev .run .var
-)
-
 # Rust configuration
 export RUST_HOME="/opt/rust"
 export CARGO_HOME="$RUST_HOME/cargo"
