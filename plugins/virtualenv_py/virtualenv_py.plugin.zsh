@@ -41,3 +41,11 @@ deactivate() {
     fi
     builtin deactivate 2>/dev/null || command deactivate
 }
+
+_virtualenv_py() {
+    local -a venv_names
+    venv_names=($VENV_HOME/*(/N:t))
+    _describe 'virtual environments' venv_names
+}
+
+compdef _virtualenv_py activate
