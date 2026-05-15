@@ -1,5 +1,6 @@
 : ${VENV_HOME=$HOME/.virtualenvs}
 : ${PYTHON_COMMAND=python3}
+: ${VENV_EXTRA_PACKAGES=}
 
 activate() {
     local venv_name=$1
@@ -21,7 +22,7 @@ activate() {
         $PYTHON_COMMAND -m venv "$VENV_HOME/$venv_name"
         source "$VENV_HOME/$venv_name/bin/activate"
 
-        $PYTHON_COMMAND -m pip install -U pip autopep8 ipython
+        $PYTHON_COMMAND -m pip install -U pip autopep8 ipython ${=VENV_EXTRA_PACKAGES}
 
         for requirements_file in requirements.txt pyproject.toml setup.py; do
             if [ -f "$requirements_file" ]; then
