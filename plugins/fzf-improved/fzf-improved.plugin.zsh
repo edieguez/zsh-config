@@ -10,7 +10,12 @@ export FZF_DEFAULT_OPTS='
 # Matching is by name at any depth — node_modules anywhere in the tree is excluded,
 # not just at the root. To add entries without editing this file, append in
 # system/environment.local.sh: FZF_EXCLUDED_DIRS+=(my-cache)
-export FZF_EXCLUDED_DIRS=(
+## Check if FZF_EXCLUDED_DIRS is already defined (e.g. in environment.local.sh) and append to it, otherwise initialize it.
+if [[ -z "${FZF_EXCLUDED_DIRS+x}" ]]; then
+  export FZF_EXCLUDED_DIRS=()
+fi
+
+FZF_EXCLUDED_DIRS+=(
   # Language/tool build and cache
   __pycache__ .angular .cache .mypy_cache .venv .next node_modules bower_components dist build out coverage target elm-stuff .cargo .pnp .pnp.js
 
