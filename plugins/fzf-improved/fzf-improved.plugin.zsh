@@ -37,7 +37,7 @@ done
 unset _fzf_dir
 
 # Ctrl+T — fuzzy file finder.
-export FZF_CTRL_T_COMMAND="fd --type f ${_fzf_exclude_opts[*]}"
+export FZF_CTRL_T_COMMAND="fd --type f --follow ${_fzf_exclude_opts[*]}"
 # Preview: bat with syntax highlighting, falls back to cat.
 # Remove the bat branch to always use cat.
 export FZF_CTRL_T_OPTS="
@@ -46,7 +46,7 @@ export FZF_CTRL_T_OPTS="
 "
 
 # Alt+C (Linux) / Esc+C (macOS) — fuzzy directory navigator.
-export FZF_ALT_C_COMMAND="fd --type d ${_fzf_exclude_opts[*]}"
+export FZF_ALT_C_COMMAND="fd --type d --follow ${_fzf_exclude_opts[*]}"
 # Preview: lsd tree, falls back to ls.
 # Change --depth to control how many levels the tree shows.
 export FZF_ALT_C_OPTS="
@@ -70,10 +70,10 @@ export FZF_COMPLETION_OPTS="
 # --hidden includes dotfiles. FZF_EXCLUDED_DIRS is applied for performance —
 # traversing node_modules/.cargo/.git etc. makes completion unusably slow.
 _fzf_compgen_path() {
-  fd --type f --hidden "${_fzf_exclude_opts[@]}"
+  fd --type f --follow --hidden "${_fzf_exclude_opts[@]}"
 }
 
 # Candidate list for ** directory completion.
 _fzf_compgen_dir() {
-  fd --type d --hidden "${_fzf_exclude_opts[@]}"
+  fd --type d --follow --hidden "${_fzf_exclude_opts[@]}"
 }
