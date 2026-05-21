@@ -70,10 +70,10 @@ export FZF_COMPLETION_OPTS="
 # --hidden includes dotfiles. FZF_EXCLUDED_DIRS is applied for performance —
 # traversing node_modules/.cargo/.git etc. makes completion unusably slow.
 _fzf_compgen_path() {
-  fd --type f --follow --hidden "${_fzf_exclude_opts[@]}"
+  fd --type f --follow --no-ignore --hidden "${_fzf_exclude_opts[@]}"
 }
 
 # Candidate list for ** directory completion.
 _fzf_compgen_dir() {
-  fd --type d --follow --hidden "${_fzf_exclude_opts[@]}"
+  fd --type d --follow --no-ignore --hidden "${_fzf_exclude_opts[@]}"
 }
