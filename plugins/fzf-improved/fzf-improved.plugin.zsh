@@ -35,23 +35,30 @@ for _fzf_dir in "${FZF_EXCLUDED_DIRS[@]}"; do
   _fzf_exclude_opts+=(--exclude "$_fzf_dir")
 done
 unset _fzf_dir
+export FZF_EXCLUDE_OPTS="${_fzf_exclude_opts[*]}"
 
 # Ctrl+T — fuzzy file finder.
 export FZF_CTRL_T_COMMAND="fd --type f --follow ${_fzf_exclude_opts[*]}"
 # Preview: bat with syntax highlighting, falls back to cat.
 # Remove the bat branch to always use cat.
+# Press ctrl-\ inside the session to toggle hidden files on/off.
 export FZF_CTRL_T_OPTS="
+  --prompt='Files> '
   --preview='if command -v bat &>/dev/null; then bat --style=numbers,changes,header,grid --color=always --line-range :500 {}; else cat {}; fi'
   --preview-window=right:60%:wrap:border-left
+  --bind='ctrl-\\:transform:case \"\$FZF_PROMPT\" in *+h*) printf \"reload(fd --type f --follow \$FZF_EXCLUDE_OPTS)+change-prompt(Files> )\";; *) printf \"reload(fd --type f --follow --hidden \$FZF_EXCLUDE_OPTS)+change-prompt(Files +h> )\";; esac'
 "
 
 # Alt+C (Linux) / Esc+C (macOS) — fuzzy directory navigator.
 export FZF_ALT_C_COMMAND="fd --type d --follow ${_fzf_exclude_opts[*]}"
 # Preview: lsd tree, falls back to ls.
 # Change --depth to control how many levels the tree shows.
+# Press ctrl-\ inside the session to toggle hidden directories on/off.
 export FZF_ALT_C_OPTS="
+  --prompt='Dirs> '
   --preview='lsd -lh --tree --depth 2 --color=always {} 2>/dev/null || ls -lh --color=always {}'
   --preview-window=right:60%:wrap:border-left
+  --bind='ctrl-\\:transform:case \"\$FZF_PROMPT\" in *+h*) printf \"reload(fd --type d --follow \$FZF_EXCLUDE_OPTS)+change-prompt(Dirs> )\";; *) printf \"reload(fd --type d --follow --hidden \$FZF_EXCLUDE_OPTS)+change-prompt(Dirs +h> )\";; esac'
 "
 
 # Ctrl+R — history search.
