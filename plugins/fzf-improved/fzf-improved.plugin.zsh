@@ -41,30 +41,33 @@ export FZF_EXCLUDE_OPTS="${_fzf_exclude_opts[*]}"
 export FZF_CTRL_T_COMMAND="fd --type f --follow ${_fzf_exclude_opts[*]}"
 # Preview: bat with syntax highlighting, falls back to cat.
 # Remove the bat branch to always use cat.
-# Press ctrl-\ inside the session to toggle hidden files on/off.
+# ctrl-]: toggle files/dirs  ctrl-\: toggle hidden  ctrl-g: toggle gitignored
 export FZF_CTRL_T_OPTS="
   --prompt='Files> '
-  --preview='if command -v bat &>/dev/null; then bat --style=numbers,changes,header,grid --color=always --line-range :500 {}; else cat {}; fi'
+  --header='ctrl-\: files/dirs | ctrl-]: normal→hidden→gitignored→both'
+  --preview='if [[ -d {} ]]; then lsd -lh --tree --depth 2 --color=always {} 2>/dev/null || ls -lh --color=always {}; elif command -v bat &>/dev/null; then bat --style=numbers,changes,header,grid --color=always --line-range :500 {}; else cat {}; fi'
   --preview-window=right:60%:wrap:border-left
-  --bind='ctrl-\\:transform:case \"\$FZF_PROMPT\" in *+h*) printf \"reload(fd --type f --follow \$FZF_EXCLUDE_OPTS)+change-prompt(Files> )\";; *) printf \"reload(fd --type f --follow --hidden \$FZF_EXCLUDE_OPTS)+change-prompt(Files +h> )\";; esac'
+  --bind='ctrl-]:transform:case \"\$FZF_PROMPT\" in Files*) t=f;l=Files;; *) t=d;l=Dirs;; esac; case \"\$FZF_PROMPT\" in *+h*+g*) h=\"\";hs=\"\";ni=\"\";gs=\"\";; *+h*) h=\"\";hs=\"\";ni=\"--no-ignore-vcs \";gs=\" +g\";; *+g*) h=\"--hidden \";hs=\" +h\";ni=\"--no-ignore-vcs \";gs=\" +g\";; *) h=\"--hidden \";hs=\" +h\";ni=\"\";gs=\"\";; esac; printf \"reload(fd --type \$t --follow \${h}\${ni}\$FZF_EXCLUDE_OPTS)+change-prompt(\${l}\${hs}\${gs}> )\"'
+  --bind='ctrl-\\:transform:case \"\$FZF_PROMPT\" in Files*) t=d;l=Dirs;; *) t=f;l=Files;; esac; case \"\$FZF_PROMPT\" in *+h*) h=\"--hidden \";hs=\" +h\";; *) h=\"\";hs=\"\";; esac; case \"\$FZF_PROMPT\" in *+g*) ni=\"--no-ignore-vcs \";gs=\" +g\";; *) ni=\"\";gs=\"\";; esac; printf \"reload(fd --type \$t --follow \${h}\${ni}\$FZF_EXCLUDE_OPTS)+change-prompt(\${l}\${hs}\${gs}> )\"'
 "
 
 # Alt+C (Linux) / Esc+C (macOS) — fuzzy directory navigator.
 export FZF_ALT_C_COMMAND="fd --type d --follow ${_fzf_exclude_opts[*]}"
 # Preview: lsd tree, falls back to ls.
 # Change --depth to control how many levels the tree shows.
-# Press ctrl-\ inside the session to toggle hidden directories on/off.
+# ctrl-]: cycle visibility (normal→hidden→gitignored→both)
 export FZF_ALT_C_OPTS="
   --prompt='Dirs> '
+  --header='ctrl-]: normal→hidden→gitignored→both'
   --preview='lsd -lh --tree --depth 2 --color=always {} 2>/dev/null || ls -lh --color=always {}'
   --preview-window=right:60%:wrap:border-left
-  --bind='ctrl-\\:transform:case \"\$FZF_PROMPT\" in *+h*) printf \"reload(fd --type d --follow \$FZF_EXCLUDE_OPTS)+change-prompt(Dirs> )\";; *) printf \"reload(fd --type d --follow --hidden \$FZF_EXCLUDE_OPTS)+change-prompt(Dirs +h> )\";; esac'
+  --bind='ctrl-]:transform:case \"\$FZF_PROMPT\" in *+h*+g*) h=\"\";hs=\"\";ni=\"\";gs=\"\";; *+h*) h=\"\";hs=\"\";ni=\"--no-ignore-vcs \";gs=\" +g\";; *+g*) h=\"--hidden \";hs=\" +h\";ni=\"--no-ignore-vcs \";gs=\" +g\";; *) h=\"--hidden \";hs=\" +h\";ni=\"\";gs=\"\";; esac; printf \"reload(fd --type d --follow \${h}\${ni}\$FZF_EXCLUDE_OPTS)+change-prompt(Dirs\${hs}\${gs}> )\"'
 "
 
 # Ctrl+R — history search.
 # No preview because history entries are not file paths.
 # Remove --no-preview to restore fzf's default preview behavior.
-export FZF_CTRL_R_OPTS="--no-preview"
+export FZF_CTRL_R_OPTS="--no-preview --scheme=history"
 
 # ** tab completion preview.
 # Auto-detects whether the candidate is a file (bat) or directory (lsd tree).

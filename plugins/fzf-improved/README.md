@@ -42,17 +42,21 @@ details on what each preview shows and which directories are excluded from resul
 
 ### Inside the fzf panel
 
-| Key | Action |
-|-----|--------|
-| `Enter` | Confirm selection |
-| `Esc` / `Ctrl+C` | Cancel |
-| `↑` / `Ctrl+K` / `Ctrl+P` | Move cursor up |
-| `↓` / `Ctrl+J` / `Ctrl+N` | Move cursor down |
-| `Tab` | Toggle mark (multi-select) |
-| `Shift+Tab` | Toggle mark and move up |
-| `Ctrl+A` | Select all visible items |
-| `Ctrl+D` | Deselect all |
-| `Ctrl+/` | Toggle preview pane |
+| Key | Applies to | Action |
+|-----|------------|--------|
+| `Enter` | All | Confirm selection |
+| `Esc` / `Ctrl+C` | All | Cancel |
+| `↑` / `Ctrl+K` / `Ctrl+P` | All | Move cursor up |
+| `↓` / `Ctrl+J` / `Ctrl+N` | All | Move cursor down |
+| `Tab` | All | Toggle mark (multi-select) |
+| `Shift+Tab` | All | Toggle mark and move up |
+| `Ctrl+A` | All | Select all visible items |
+| `Ctrl+D` | All | Deselect all |
+| `Ctrl+/` | All | Toggle preview pane |
+| `Ctrl+\` | `Ctrl+T` | Toggle between files and directories |
+| `Ctrl+]` | `Ctrl+T`, `Alt+C` / `Esc+C` | Cycle visibility: normal → hidden → gitignored → both → normal |
+
+The active `Ctrl+T` modes are shown in the prompt: e.g. `Files +h+g> ` means files with hidden and gitignored entries both included. A key-hint header is always visible at the bottom of the results list as a reminder.
 
 ---
 
@@ -114,9 +118,9 @@ FZF_EXCLUDED_DIRS+=(my-big-cache another-dir)
 
 | Shortcut | Preview command | Fallback |
 |----------|----------------|----------|
-| `Ctrl+T` | `bat --style=numbers,changes,header,grid --color=always` | `cat` |
+| `Ctrl+T` | `lsd` tree for directories, `bat` for files (auto-detected) | `ls -lh` / `cat` |
 | `Alt+C` / `Esc+C` | `lsd -lh --tree --depth 2 --color=always` | `ls -lh --color=always` |
-| `Ctrl+R` | _(none — history entries are not file paths)_ | — |
+| `Ctrl+R` | _(none)_ — uses `--scheme=history` for recency/frequency-weighted ranking | — |
 | `**` completion | `bat` for files, `lsd` tree for directories — `FZF_EXCLUDED_DIRS` applied | `cat` / `ls` |
 
 All previews open in a right-side panel at 60% width.
@@ -126,11 +130,14 @@ All previews open in a right-side panel at 60% width.
 ## Internals
 
 `_fzf_exclude_opts` is a global array (`typeset -ga`) built at plugin load time by expanding
-`FZF_EXCLUDED_DIRS` into `--exclude <dir>` flags. It is used in two forms:
+`FZF_EXCLUDED_DIRS` into `--exclude <dir>` flags. It is used in three forms:
 
 - **String form** (`${_fzf_exclude_opts[*]}`) in the exported `FZF_CTRL_T_COMMAND` and
   `FZF_ALT_C_COMMAND` variables — these are evaluated later in a subshell by fzf where the
   array is not in scope, so word-splitting into a flat string is required.
+- **Exported string** (`FZF_EXCLUDE_OPTS`) — the same flat string, exported so that fzf's
+  `transform` subshells (spawned by `sh -c` for the `Ctrl+T` toggle bindings) can inherit it
+  as an environment variable and embed it in `reload(...)` actions at runtime.
 - **Quoted array form** (`"${_fzf_exclude_opts[@]}"`) in `_fzf_compgen_path` and
   `_fzf_compgen_dir` — these functions run in the current shell where the array is available,
   so the quoted form is used to correctly handle any directory names that contain spaces. Both
