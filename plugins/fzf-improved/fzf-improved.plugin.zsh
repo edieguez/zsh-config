@@ -55,9 +55,20 @@ else
   _FZF_COPY_CMD='cat'
 fi
 
+# Open command — open on macOS, xdg-open on Linux.
+if command -v open &>/dev/null; then
+  _FZF_OPEN_CMD='open'
+elif command -v xdg-open &>/dev/null; then
+  _FZF_OPEN_CMD='xdg-open'
+else
+  _FZF_OPEN_CMD=''
+fi
+
 # ctrl-e opens $EDITOR (terminal); alt-e opens $VISUAL (GUI) if set.
+# ctrl-o opens selection with the system default app, then closes fzf.
 _FZF_EDITOR_BIND='ctrl-e:become(${EDITOR:-vi} {+} </dev/tty >/dev/tty)'
 _FZF_VISUAL_BIND='alt-e:become(${VISUAL:-${EDITOR:-vi}} {+})'
+[[ -n "$_FZF_OPEN_CMD" ]] && _FZF_OPEN_BIND="ctrl-o:execute-silent(${_FZF_OPEN_CMD} {+})+abort" || _FZF_OPEN_BIND=''
 
 # Shell helpers for transform: bindings. These run in a POSIX sh subshell spawned
 # by fzf, so they are inlined as a string and eval'd at bind time — not zsh functions.
@@ -108,6 +119,7 @@ export FZF_CTRL_T_OPTS="
   --bind='ctrl-\\:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle mode'
   --bind='${_FZF_EDITOR_BIND}'
   --bind='${_FZF_VISUAL_BIND}'
+  --bind='${_FZF_OPEN_BIND}'
   --bind='ctrl-y:become(printf %s \$(realpath {}) | ${_FZF_COPY_CMD})'
 "
 
@@ -120,6 +132,7 @@ export FZF_ALT_C_OPTS="
   --preview-window=right:60%:wrap:border-left
   --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle hidden'
   --bind='ctrl-g:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle gitignored'
+  --bind='${_FZF_OPEN_BIND}'
   --bind='ctrl-y:become(printf %s \$(realpath {}) | ${_FZF_COPY_CMD})'
 "
 
