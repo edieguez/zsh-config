@@ -37,42 +37,100 @@ done
 unset _fzf_dir
 export FZF_EXCLUDE_OPTS="${_fzf_exclude_opts[*]}"
 
-# Ctrl+T — fuzzy file finder.
+# Shared preview command: bat with syntax highlighting for files, lsd tree for dirs.
+# Duplicated usage sites reference this variable so the command lives in one place.
+_FZF_IMPROVED_PREVIEW='if [[ -d {} ]]; then lsd -lh --tree --depth 2 --color=always {} 2>/dev/null || ls -lh --color=always {}; elif command -v bat &>/dev/null; then bat --style=numbers,changes,header,grid --color=always --line-range :500 {}; else cat {}; fi'
+
+# Clipboard command — pbcopy on macOS, xclip/xsel on Linux.
+# Falls back to bat (styled output) then cat when no clipboard tool is found.
+if command -v pbcopy &>/dev/null; then
+  _FZF_COPY_CMD='pbcopy'
+elif command -v xclip &>/dev/null; then
+  _FZF_COPY_CMD='xclip -sel clip'
+elif command -v xsel &>/dev/null; then
+  _FZF_COPY_CMD='xsel --clipboard --input'
+elif command -v bat &>/dev/null; then
+  _FZF_COPY_CMD='bat'
+else
+  _FZF_COPY_CMD='cat'
+fi
+
+# ctrl-e opens $EDITOR (terminal); alt-e opens $VISUAL (GUI) if set.
+_FZF_EDITOR_BIND='ctrl-e:become(${EDITOR:-vi} {+} </dev/tty >/dev/tty)'
+_FZF_VISUAL_BIND='alt-e:become(${VISUAL:-${EDITOR:-vi}} {+})'
+
+# Shell helpers for transform: bindings. These run in a POSIX sh subshell spawned
+# by fzf, so they are inlined as a string and eval'd at bind time — not zsh functions.
+# All state is encoded in $FZF_PROMPT (e.g. "Files +hg> "), which fzf reliably exposes
+# to transform: subshells after every change-prompt. No temp files, no header parsing.
+export FZF_IMPROVED_HELPERS='
+  # Emit reload+change-prompt fzf actions for given state.
+  # $1=type(f|d) $2=hidden(0|1) $3=gitignored(0|1)
+  _fzf_state_actions() {
+    t=$1 hidden=$2 gi=$3
+    h_flag="" ni_flag="" markers=""
+    [ "$hidden" = "1" ] && { h_flag="--hidden ";         markers="${markers}h"; }
+    [ "$gi" = "1" ]     && { ni_flag="--no-ignore-vcs "; markers="${markers}g"; }
+    case $t in f) label=Files ;; *) label=Dirs ;; esac
+    [ -n "$markers" ] && suffix=" +${markers}" || suffix=""
+    printf "reload(fd --type %s --follow %s%s%s)+change-prompt(%s%s> )" \
+      "$t" "$h_flag" "$ni_flag" "$FZF_EXCLUDE_OPTS" \
+      "$label" "$suffix"
+  }
+
+  # Read state from $FZF_PROMPT, toggle one dimension, emit new actions.
+  # Prompt format: "Files> " | "Files +h> " | "Files +g> " | "Files +hg> "
+  # $1=toggle(mode|hidden|gitignored)
+  _fzf_toggle() {
+    toggle=$1
+    case $FZF_PROMPT in Files*) t=f ;; *) t=d ;; esac
+    hidden=0; gi=0
+    case $FZF_PROMPT in *+h*">"*) hidden=1 ;; esac
+    case $FZF_PROMPT in *+*g*">"*) gi=1 ;; esac
+    case $toggle in
+      mode)       [ "$t" = "f" ] && t=d || t=f ;;
+      hidden)     [ "$hidden" = "1" ] && hidden=0 || hidden=1 ;;
+      gitignored) [ "$gi" = "1" ] && gi=0 || gi=1 ;;
+    esac
+    _fzf_state_actions "$t" "$hidden" "$gi"
+  }
+'
+
+# Ctrl+T — fuzzy file/directory finder.
 export FZF_CTRL_T_COMMAND="fd --type f --follow ${_fzf_exclude_opts[*]}"
-# Preview: bat with syntax highlighting, falls back to cat.
-# Remove the bat branch to always use cat.
-# ctrl-]: toggle files/dirs  ctrl-\: toggle hidden  ctrl-g: toggle gitignored
 export FZF_CTRL_T_OPTS="
+  --multi
   --prompt='Files> '
-  --header='ctrl-\: files/dirs | ctrl-]: normal→hidden→gitignored→both'
-  --preview='if [[ -d {} ]]; then lsd -lh --tree --depth 2 --color=always {} 2>/dev/null || ls -lh --color=always {}; elif command -v bat &>/dev/null; then bat --style=numbers,changes,header,grid --color=always --line-range :500 {}; else cat {}; fi'
+  --preview='${_FZF_IMPROVED_PREVIEW}'
   --preview-window=right:60%:wrap:border-left
-  --bind='ctrl-]:transform:case \"\$FZF_PROMPT\" in Files*) t=f;l=Files;; *) t=d;l=Dirs;; esac; case \"\$FZF_PROMPT\" in *+h*+g*) h=\"\";hs=\"\";ni=\"\";gs=\"\";; *+h*) h=\"\";hs=\"\";ni=\"--no-ignore-vcs \";gs=\" +g\";; *+g*) h=\"--hidden \";hs=\" +h\";ni=\"--no-ignore-vcs \";gs=\" +g\";; *) h=\"--hidden \";hs=\" +h\";ni=\"\";gs=\"\";; esac; printf \"reload(fd --type \$t --follow \${h}\${ni}\$FZF_EXCLUDE_OPTS)+change-prompt(\${l}\${hs}\${gs}> )\"'
-  --bind='ctrl-\\:transform:case \"\$FZF_PROMPT\" in Files*) t=d;l=Dirs;; *) t=f;l=Files;; esac; case \"\$FZF_PROMPT\" in *+h*) h=\"--hidden \";hs=\" +h\";; *) h=\"\";hs=\"\";; esac; case \"\$FZF_PROMPT\" in *+g*) ni=\"--no-ignore-vcs \";gs=\" +g\";; *) ni=\"\";gs=\"\";; esac; printf \"reload(fd --type \$t --follow \${h}\${ni}\$FZF_EXCLUDE_OPTS)+change-prompt(\${l}\${hs}\${gs}> )\"'
+  --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle hidden'
+  --bind='ctrl-g:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle gitignored'
+  --bind='ctrl-\\:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle mode'
+  --bind='${_FZF_EDITOR_BIND}'
+  --bind='${_FZF_VISUAL_BIND}'
+  --bind='ctrl-y:become(printf %s \$(realpath {}) | ${_FZF_COPY_CMD})'
 "
 
 # Alt+C (Linux) / Esc+C (macOS) — fuzzy directory navigator.
+# No files/dirs toggle here — Alt+C is dedicated to cd.
 export FZF_ALT_C_COMMAND="fd --type d --follow ${_fzf_exclude_opts[*]}"
-# Preview: lsd tree, falls back to ls.
-# Change --depth to control how many levels the tree shows.
-# ctrl-]: cycle visibility (normal→hidden→gitignored→both)
 export FZF_ALT_C_OPTS="
   --prompt='Dirs> '
-  --header='ctrl-]: normal→hidden→gitignored→both'
   --preview='lsd -lh --tree --depth 2 --color=always {} 2>/dev/null || ls -lh --color=always {}'
   --preview-window=right:60%:wrap:border-left
-  --bind='ctrl-]:transform:case \"\$FZF_PROMPT\" in *+h*+g*) h=\"\";hs=\"\";ni=\"\";gs=\"\";; *+h*) h=\"\";hs=\"\";ni=\"--no-ignore-vcs \";gs=\" +g\";; *+g*) h=\"--hidden \";hs=\" +h\";ni=\"--no-ignore-vcs \";gs=\" +g\";; *) h=\"--hidden \";hs=\" +h\";ni=\"\";gs=\"\";; esac; printf \"reload(fd --type d --follow \${h}\${ni}\$FZF_EXCLUDE_OPTS)+change-prompt(Dirs\${hs}\${gs}> )\"'
+  --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle hidden'
+  --bind='ctrl-g:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle gitignored'
+  --bind='ctrl-y:become(printf %s \$(realpath {}) | ${_FZF_COPY_CMD})'
 "
 
 # Ctrl+R — history search.
 # No preview because history entries are not file paths.
-# Remove --no-preview to restore fzf's default preview behavior.
 export FZF_CTRL_R_OPTS="--no-preview --scheme=history"
 
 # ** tab completion preview.
 # Auto-detects whether the candidate is a file (bat) or directory (lsd tree).
 export FZF_COMPLETION_OPTS="
-  --preview='if [[ -d {} ]]; then lsd -lh --tree --depth 2 --color=always {} 2>/dev/null || ls -lh --color=always {}; elif command -v bat &>/dev/null; then bat --style=numbers,changes,header,grid --color=always --line-range :500 {}; else cat {}; fi'
+  --preview='${_FZF_IMPROVED_PREVIEW}'
   --preview-window=right:60%:wrap:border-left
 "
 
