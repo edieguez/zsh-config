@@ -89,20 +89,27 @@ export FZF_IMPROVED_HELPERS='
       "$label" "$suffix"
   }
 
-  # Read state from $FZF_PROMPT, toggle one dimension, emit new actions.
-  # Prompt format: "Files> " | "Files +h> " | "Files +g> " | "Files +hg> "
-  # $1=toggle(mode|hidden|gitignored)
+  # Toggle Files/Dirs mode, preserving hidden/git state.
   _fzf_toggle() {
-    toggle=$1
-    case $FZF_PROMPT in Files*) t=f ;; *) t=d ;; esac
+    case $FZF_PROMPT in Files*) t=d ;; *) t=f ;; esac
     hidden=0; gi=0
     case $FZF_PROMPT in *+h*">"*) hidden=1 ;; esac
     case $FZF_PROMPT in *+*g*">"*) gi=1 ;; esac
-    case $toggle in
-      mode)       [ "$t" = "f" ] && t=d || t=f ;;
-      hidden)     [ "$hidden" = "1" ] && hidden=0 || hidden=1 ;;
-      gitignored) [ "$gi" = "1" ] && gi=0 || gi=1 ;;
-    esac
+    _fzf_state_actions "$t" "$hidden" "$gi"
+  }
+
+  # Cycle visibility: Normal → Hidden → Hidden+Git → Normal
+  _fzf_cycle_visibility() {
+    case $FZF_PROMPT in Files*) t=f ;; *) t=d ;; esac
+    case $FZF_PROMPT in *+h*) hidden=1 ;; *) hidden=0 ;; esac
+    case $FZF_PROMPT in *+*g*) gi=1 ;; *) gi=0 ;; esac
+    if [ "$hidden" = "0" ]; then
+      hidden=1; gi=0
+    elif [ "$gi" = "0" ]; then
+      hidden=1; gi=1
+    else
+      hidden=0; gi=0
+    fi
     _fzf_state_actions "$t" "$hidden" "$gi"
   }
 '
@@ -114,8 +121,7 @@ export FZF_CTRL_T_OPTS="
   --prompt='Files> '
   --preview='${_FZF_IMPROVED_PREVIEW}'
   --preview-window=right:60%:wrap:border-left
-  --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle hidden'
-  --bind='ctrl-g:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle gitignored'
+  --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_cycle_visibility'
   --bind='ctrl-\\:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle mode'
   --bind='${_FZF_EDITOR_BIND}'
   --bind='${_FZF_VISUAL_BIND}'
@@ -130,8 +136,7 @@ export FZF_ALT_C_OPTS="
   --prompt='Dirs> '
   --preview='lsd -lh --tree --depth 2 --color=always {} 2>/dev/null || ls -lh --color=always {}'
   --preview-window=right:60%:wrap:border-left
-  --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle hidden'
-  --bind='ctrl-g:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle gitignored'
+  --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_cycle_visibility'
   --bind='${_FZF_OPEN_BIND}'
   --bind='ctrl-y:become(printf %s \$(realpath {}) | ${_FZF_COPY_CMD})'
 "
