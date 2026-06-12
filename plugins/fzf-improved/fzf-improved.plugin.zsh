@@ -4,6 +4,8 @@
 # --border        draw a border around the widget
 export FZF_DEFAULT_OPTS='
   --height=60% --layout=reverse --border
+  --bind=ctrl-u:preview-half-page-up
+  --bind=ctrl-d:preview-half-page-down
 '
 
 # Directory names that fd will skip in Ctrl+T and Alt+C searches.
