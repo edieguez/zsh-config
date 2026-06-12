@@ -89,27 +89,18 @@ export FZF_IMPROVED_HELPERS='
       "$label" "$suffix"
   }
 
-  # Toggle Files/Dirs mode, preserving hidden/git state.
-  _fzf_toggle() {
-    case $FZF_PROMPT in Files*) t=d ;; *) t=f ;; esac
-    hidden=0; gi=0
-    case $FZF_PROMPT in *+h*">"*) hidden=1 ;; esac
-    case $FZF_PROMPT in *+*g*">"*) gi=1 ;; esac
-    _fzf_state_actions "$t" "$hidden" "$gi"
-  }
-
-  # Cycle visibility: Normal → Hidden → Hidden+Git → Normal
-  _fzf_cycle_visibility() {
+  # $1=mode: toggle Files/Dirs | vis: cycle Normal→Hidden→Hidden+Git→Normal
+  _fzf_action() {
     case $FZF_PROMPT in Files*) t=f ;; *) t=d ;; esac
-    case $FZF_PROMPT in *+h*) hidden=1 ;; *) hidden=0 ;; esac
-    case $FZF_PROMPT in *+*g*) gi=1 ;; *) gi=0 ;; esac
-    if [ "$hidden" = "0" ]; then
-      hidden=1; gi=0
-    elif [ "$gi" = "0" ]; then
-      hidden=1; gi=1
-    else
-      hidden=0; gi=0
-    fi
+    hidden=0; gi=0
+    case $FZF_PROMPT in *+h*) hidden=1 ;; esac
+    case $FZF_PROMPT in *+*g*) gi=1 ;; esac
+    case $1 in
+      mode) case $t in f) t=d ;; *) t=f ;; esac ;;
+      vis)  if   [ "$hidden" = "0" ]; then hidden=1; gi=0
+            elif [ "$gi"     = "0" ]; then hidden=1; gi=1
+            else                           hidden=0; gi=0; fi ;;
+    esac
     _fzf_state_actions "$t" "$hidden" "$gi"
   }
 '
@@ -121,8 +112,8 @@ export FZF_CTRL_T_OPTS="
   --prompt='Files> '
   --preview='${_FZF_IMPROVED_PREVIEW}'
   --preview-window=right:60%:wrap:border-left
-  --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_cycle_visibility'
-  --bind='ctrl-\\:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_toggle mode'
+  --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_action vis'
+  --bind='ctrl-\\:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_action mode'
   --bind='${_FZF_EDITOR_BIND}'
   --bind='${_FZF_VISUAL_BIND}'
   --bind='${_FZF_OPEN_BIND}'
@@ -136,7 +127,7 @@ export FZF_ALT_C_OPTS="
   --prompt='Dirs> '
   --preview='lsd -lh --tree --depth 2 --color=always {} 2>/dev/null || ls -lh --color=always {}'
   --preview-window=right:60%:wrap:border-left
-  --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_cycle_visibility'
+  --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_action vis'
   --bind='${_FZF_OPEN_BIND}'
   --bind='ctrl-y:become(printf %s \$(realpath {}) | ${_FZF_COPY_CMD})'
 "
