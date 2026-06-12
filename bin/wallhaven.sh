@@ -40,47 +40,47 @@ parse_args() {
 
   while [ $# -ge 1 ]; do
     case "$1" in
-      -c|--categories)
-          categories="$2"
-          shift 2
-          ;;
-      -p|--purity)
-          purity="$2"
-          shift 2
-          ;;
-      -s|--sorting)
-          sorting="$2"
-          shift 2
-          ;;
-      -t|--top-range)
-          top_range="$2"
-          shift 2
-          ;;
-      -a|--at-least)
-          at_least="$2"
-          shift 2
-          ;;
-      -r|--resolutions)
-          resolutions="$2"
-          shift 2
-          ;;
-      --ratios)
-          ratios="$2"
-          shift 2
-          ;;
-      --no-filter)
-          no_filter=true
-          shift
-          ;;
-      -u|--update)
-          update=true
-          shift
-          ;;
-      *)
-          echo "[01;31m[e] Unknown option: $1[0m"
-          help
-          exit 1
-          ;;
+    -c | --categories)
+      categories="$2"
+      shift 2
+      ;;
+    -p | --purity)
+      purity="$2"
+      shift 2
+      ;;
+    -s | --sorting)
+      sorting="$2"
+      shift 2
+      ;;
+    -t | --top-range)
+      top_range="$2"
+      shift 2
+      ;;
+    -a | --at-least)
+      at_least="$2"
+      shift 2
+      ;;
+    -r | --resolutions)
+      resolutions="$2"
+      shift 2
+      ;;
+    --ratios)
+      ratios="$2"
+      shift 2
+      ;;
+    --no-filter)
+      no_filter=true
+      shift
+      ;;
+    -u | --update)
+      update=true
+      shift
+      ;;
+    *)
+      echo "[01;31m[e] Unknown option: $1[0m"
+      help
+      exit 1
+      ;;
     esac
   done
 }
@@ -114,6 +114,7 @@ start_crawler() {
 
   if [[ -d "$WALLHAVEN_DIR" && "$update" = true ]]; then
     echo "[01;34m[i] Updating existing wallpapers in $WALLHAVEN_DIR[0m"
+  else
     rm -rf "$WALLHAVEN_DIR"
   fi
 
