@@ -114,8 +114,8 @@ export FZF_CTRL_T_OPTS="
   --prompt='Files> '
   --preview='${_FZF_IMPROVED_PREVIEW}'
   --preview-window=right:60%:wrap:border-left
-  --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_action vis'
-  --bind='ctrl-\\:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_action mode'
+  --bind='shift-tab:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_action mode'
+  --bind='ctrl-\\:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_action vis'
   --bind='${_FZF_EDITOR_BIND}'
   --bind='${_FZF_VISUAL_BIND}'
   --bind='${_FZF_OPEN_BIND}'
@@ -129,7 +129,7 @@ export FZF_ALT_C_OPTS="
   --prompt='Dirs> '
   --preview='lsd -lh --tree --depth 2 --color=always {} 2>/dev/null || ls -lh --color=always {}'
   --preview-window=right:60%:wrap:border-left
-  --bind='ctrl-]:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_action vis'
+  --bind='ctrl-\\:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_action vis'
   --bind='${_FZF_OPEN_BIND}'
   --bind='ctrl-y:become(printf %s \$(realpath {}) | ${_FZF_COPY_CMD})'
 "

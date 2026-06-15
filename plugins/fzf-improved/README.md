@@ -39,37 +39,61 @@ before fzf's shell integration is sourced:
 
 ### Inside the fzf panel
 
+#### Navigation
+
+| Key | Action |
+|-----|--------|
+| `↑` / `Ctrl+K` / `Ctrl+P` | Move cursor up |
+| `↓` / `Ctrl+J` / `Ctrl+N` | Move cursor down |
+| `Enter` | Confirm selection |
+| `Esc` / `Ctrl+C` | Cancel |
+
+#### Preview
+
+| Key | Action |
+|-----|--------|
+| `Ctrl+U` | Scroll preview half-page up |
+| `Ctrl+D` | Scroll preview half-page down |
+| `Ctrl+/` | Toggle preview pane |
+
+#### Multi-select (`Ctrl+T` only)
+
+| Key | Action |
+|-----|--------|
+| `Tab` | Toggle item selection |
+| `Ctrl+A` | Select all visible items |
+
+#### Search modes
+
 | Key | Applies to | Action |
 |-----|------------|--------|
-| `Enter` | All | Confirm selection |
-| `Esc` / `Ctrl+C` | All | Cancel |
-| `↑` / `Ctrl+K` / `Ctrl+P` | All | Move cursor up |
-| `↓` / `Ctrl+J` / `Ctrl+N` | All | Move cursor down |
-| `Tab` | All | Toggle mark (multi-select) |
-| `Shift+Tab` | All | Toggle mark and move up |
-| `Ctrl+A` | All | Select all visible items |
-| `Ctrl+D` | All | Deselect all |
-| `Ctrl+/` | All | Toggle preview pane |
-| `Ctrl+\` | `Ctrl+T` | Toggle between files and directories |
-| `Ctrl+]` | `Ctrl+T`, `Alt+C` / `Esc+C` | Toggle hidden files on/off |
-| `Ctrl+G` | `Ctrl+T`, `Alt+C` / `Esc+C` | Toggle gitignored files on/off |
-| `Ctrl+E` | `Ctrl+T` | Open selected file(s) in `$EDITOR` (terminal editor) and close fzf |
-| `Alt+E` | `Ctrl+T` | Open selected file(s) in `$VISUAL` (GUI editor) and close fzf |
-| `Ctrl+Y` | `Ctrl+T`, `Alt+C` / `Esc+C` | Copy absolute path to clipboard and close fzf |
+| `Shift+Tab` | `Ctrl+T` | Switch between files and directories |
+| `Ctrl+\` | `Ctrl+T`, `Alt+C` / `Esc+C` | Cycle visibility: Normal → Hidden → Hidden+Git → Normal |
 
-#### Prompt state
+#### Actions
 
-The prompt encodes the current mode and active toggles:
+| Key | Applies to | Action |
+|-----|------------|--------|
+| `Ctrl+E` | `Ctrl+T` | Open selected file(s) in `$EDITOR` (terminal editor) |
+| `Alt+E` | `Ctrl+T` | Open selected file(s) in `$VISUAL` (GUI editor) |
+| `Ctrl+O` | `Ctrl+T`, `Alt+C` / `Esc+C` | Open with system default app |
+| `Ctrl+Y` | `Ctrl+T`, `Alt+C` / `Esc+C` | Copy absolute path to clipboard |
 
-| Prompt | Mode | Hidden | Gitignored |
-|--------|------|:------:|:----------:|
-| `Files> ` | files | off | off |
-| `Files +h> ` | files | on | off |
-| `Files +g> ` | files | off | on |
-| `Files +hg> ` | files | on | on |
-| `Dirs> ` | dirs | off | off |
+### Prompt state
 
-`Ctrl+]` and `Ctrl+G` toggle their flags independently — enabling one does not affect the other.
+The prompt encodes the current mode and active visibility flags:
+
+| Prompt | Mode | Hidden | Git-ignored |
+|--------|------|:------:|:-----------:|
+| `Files> ` | files | — | — |
+| `Files +h> ` | files | ✓ | — |
+| `Files +hg> ` | files | ✓ | ✓ |
+| `Dirs> ` | dirs | — | — |
+| `Dirs +h> ` | dirs | ✓ | — |
+| `Dirs +hg> ` | dirs | ✓ | ✓ |
+
+`Ctrl+\` cycles through these states in order. Hidden and git-ignored flags are not toggled
+independently — enabling git-ignored always implies hidden.
 
 ---
 
@@ -124,8 +148,6 @@ FZF_EXCLUDED_DIRS+=(my-big-cache another-dir)
 
 ### `VISUAL` and `EDITOR`
 
-Two bindings handle editors independently:
-
 | Key | Variable | Intended for |
 |-----|----------|-------------|
 | `Ctrl+E` | `$EDITOR` (falls back to `vi`) | Terminal editors — opened with TTY redirection |
@@ -138,8 +160,8 @@ export EDITOR=nvim   # ctrl-e
 ```
 
 > [!NOTE]
-> `Ctrl+Shift+E` is indistinguishable from `Ctrl+E` at the terminal protocol level — the shift
-> modifier is lost for control characters. `Alt+E` is used instead.
+> On macOS, `Alt` requires the terminal to send Option as a Meta key (`Esc+`). In iTerm2: Profiles →
+> Keys → Left Option key → `Esc+`. In Terminal.app: Settings → Keyboard → Use Option as Meta key.
 
 ### Clipboard (`Ctrl+Y`)
 
@@ -157,7 +179,7 @@ The absolute path is copied (via `realpath`), with no trailing newline.
 
 | Shortcut | Preview |
 |----------|---------|
-| `Ctrl+T` | Directories: `lsd` tree (depth 2); files: `bat` with syntax highlighting |
+| `Ctrl+T` | Files: `bat` with syntax highlighting; directories: `lsd` tree (depth 2) |
 | `Alt+C` / `Esc+C` | `lsd` tree (depth 2) |
 | `Ctrl+R` | None — uses `--scheme=history` for recency-weighted ranking |
 | `**` completion | Same as `Ctrl+T` |
@@ -194,9 +216,13 @@ to `ls -lh --color=always`.
 
 fzf's `transform:` bindings execute in a POSIX `sh -c` subshell — zsh functions are not
 available. Toggle logic is exported as a shell snippet in `FZF_IMPROVED_HELPERS` that each
-`transform:` binding evals inline before calling `_fzf_toggle`.
+`transform:` binding evals inline before calling `_fzf_action`.
 
 All state is encoded in `$FZF_PROMPT` (e.g. `Files +hg> `), which fzf reliably exposes to
-`transform:` subshells after every `change-prompt`. Each toggle reads mode and flags from the
-prompt, flips one dimension, and emits `reload(...)+change-prompt(...)`. No temp files, no header
-parsing.
+`transform:` subshells after every `change-prompt`. `_fzf_action` reads mode and flags from the
+prompt, applies the requested change, and emits `reload(...)+change-prompt(...)`. No temp files,
+no header parsing.
+
+`_fzf_action` takes one argument:
+- `mode` — toggles between Files and Dirs, preserving current visibility flags
+- `vis` — advances the visibility cycle: Normal → Hidden → Hidden+Git → Normal
