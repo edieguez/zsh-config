@@ -28,23 +28,19 @@ else
     }
 fi
 
-clipboard="$(pbpaste)"
-
-if [[ -z "$clipboard" ]]; then
-    notify_error "MPV launch failed: clipboard is empty"
-    exit 1
-fi
+clipboard="$(pbpaste | tr -d '\n')"
 
 mpv_url_regex='^https?://[^[:space:]]+$'
+mpv_base=(mpv --hwdec=videotoolbox --ao=coreaudio --audio-buffer=0.5)
 
-if [[ ! "$clipboard" =~ $mpv_url_regex ]]; then
-    notify_error "MPV launch failed: clipboard does not contain a valid URL"
-    exit 1
-fi
-
-notify "Launching MPV with URL $clipboard"
-
-mpv --hwdec=videotoolbox --ao=coreaudio --audio-buffer=0.5 "$clipboard" || {
-    notify_error "MPV launch failed: $?"
+if [[ "$clipboard" =~ $mpv_url_regex ]] || [[ -f "$clipboard" ]]; then
+    notify "Launching MPV with $clipboard"
+    mpv_output=$("${mpv_base[@]}" "$clipboard" 2>&1)
+else
+    notify "Launching MPV in idle mode"
+    mpv_output=$("${mpv_base[@]}" --idle 2>&1)
+fi || {
+    last_line=$(printf '%s' "$mpv_output" | grep -v '^$' | tail -1)
+    notify_error "MPV launch failed: ${last_line:-unknown error}"
     exit 1
 }
