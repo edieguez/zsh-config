@@ -1,7 +1,7 @@
 # Drop-in replacements — only active when the modern tool is installed
 (( $+commands[bat]  )) && alias cat='bat'
 (( $+commands[lsd]  )) && alias ls='lsd --group-directories-first' ll='ls -lh' la='ls -lha' tree='ls -lh --tree --depth 3 2>/dev/null'
-(( $+commands[nvim] )) && alias vi='nvim' vim='nvim'
+(( $+commands[nvim] )) && alias v=nvim vi='nvim' vim='nvim'
 (( $+commands[yt-dlp]  )) && alias youtube-dl='yt-dlp' youtube-dl-mp3='yt-dlp --add-metadata --extract-audio --audio-format mp3'
 
 alias aria2c='aria2c --file-allocation=none --summary-interval=900'
