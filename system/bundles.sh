@@ -8,15 +8,13 @@ if [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]]; then
   }
 fi
 
-# https://bun.sh
-[ -s "/opt/homebrew/share/zsh/site-functions/_bun" ] && source "/opt/homebrew/share/zsh/site-functions/_bun"
-
 # Conditional plugin loading
 (( $+commands[aws] )) && plugins+=(aws)
 (( $+commands[git] )) && plugins+=(git)
 (( $+commands[gradle] )) && plugins+=(gradle)
 (( $+commands[mvn] )) && plugins+=(mvn)
-[ -s "$GOROOT/bin/go" ] && plugins+=(golang) # Workaround
+(( $+commands[go] )) && plugins+=(golang)
+(( $+commands[rustc] )) && plugins+=(rust)
 
 # Add nvm lazy load plugin if nvm is installed
 if [ -d "$NVM_DIR" ]; then
