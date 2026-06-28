@@ -17,7 +17,9 @@ fi
 (( $+commands[rustc] )) && plugins+=(rust)
 
 # Add nvm lazy load plugin if nvm is installed
-if [ -d "$NVM_DIR" ]; then
+if [ -d "$HOME/.nvm" ]; then
+  export NVM_DIR="$HOME/.nvm"
+
   if [ ! -d "$ZSH_CUSTOM/plugins/zsh-nvm-lazy-load" ]; then
     echo "NVM is installed, adding zsh-nvm-lazy-load plugin..."
     git clone https://github.com/undg/zsh-nvm-lazy-load.git "$ZSH_CUSTOM/plugins/zsh-nvm-lazy-load"

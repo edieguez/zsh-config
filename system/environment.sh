@@ -6,8 +6,13 @@ setopt HIST_IGNORE_SPACE
 setopt HIST_FIND_NO_DUPS
 setopt HIST_SAVE_NO_DUPS
 
-# SDKMAN for managing JVM languages and tools
-export SDKMAN_DIR="$HOME/.sdkman"
+CUSTOM_PATH=()
 
-# NVM for managing Node.js versions
-export NVM_DIR="$HOME/.nvm"
+# SDKMAN for managing JVM languages and tools
+if [ -d "$HOME/.sdkman" ]; then
+  export SDKMAN_DIR="$HOME/.sdkman"
+  CUSTOM_PATH+=(
+    "$SDKMAN_DIR/candidates/java/current/bin"
+    "$SDKMAN_DIR/candidates/maven/current/bin"
+  )
+fi

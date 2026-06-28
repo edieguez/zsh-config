@@ -8,4 +8,4 @@ export RUSTUP_HOME="$RUST_HOME/rustup"
 export GOROOT="/opt/go"
 export GOPATH="$GOROOT/gopath"
 
-export CUSTOM_PATH="$CARGO_HOME/bin:$GOROOT/bin:$GOPATH/bin"
+CUSTOM_PATH+=("$CARGO_HOME/bin" "$GOROOT/bin" "$GOPATH/bin")

@@ -46,14 +46,13 @@ source "$ZSH_CUSTOM/system/functions.sh"
 source_if_exist "$ZSH_CUSTOM/system/$PLATFORM/functions.sh"
 source_if_exist "$ZSH_CUSTOM/system/functions.local.sh"
 
-# Fourth highest precedency: bin directories in CUSTOM_PATH
-# Third highest precedency: binaries in ZSH_CUSTOM/bin
-PATH="$ZSH_CUSTOM/bin/:$CUSTOM_PATH:$PATH"
+unset -f source_if_exist
 
-# Second precedency: directories based on OS
-if [[ $PLATFORM != "unknown" ]]; then
-    PATH="$ZSH_CUSTOM/bin/$PLATFORM:$PATH"
-fi
-
-# Highest precedency: binaries in local directory
-PATH="$ZSH_CUSTOM/bin/local:$PATH"
+# Build PATH (highest to lowest precedence):
+# bin/local > bin/$PLATFORM > bin/ > CUSTOM_PATH > system PATH
+typeset -a _bins
+_bins=($ZSH_CUSTOM/bin/ $CUSTOM_PATH)
+[[ $PLATFORM != "unknown" ]] && _bins=($ZSH_CUSTOM/bin/$PLATFORM $_bins)
+_bins=($ZSH_CUSTOM/bin/local $_bins)
+PATH="${(j[:])_bins}:$PATH"
+unset _bins
