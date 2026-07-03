@@ -75,7 +75,7 @@ before fzf's shell integration is sourced:
 | Key | Applies to | Action |
 |-----|------------|--------|
 | `Ctrl+E` | `Ctrl+T` | Open selected file(s) in `$EDITOR` (terminal editor) |
-| `Alt+E` | `Ctrl+T` | Open selected file(s) in `$VISUAL` (GUI editor) |
+| `Ctrl+G` | `Ctrl+T` | Open selected file(s) in `$VISUAL` (GUI editor) |
 | `Ctrl+O` | `Ctrl+T`, `Alt+C` / `Esc+C` | Open with system default app |
 | `Ctrl+Y` | `Ctrl+T`, `Alt+C` / `Esc+C` | Copy absolute path to clipboard |
 
@@ -151,17 +151,13 @@ FZF_EXCLUDED_DIRS+=(my-big-cache another-dir)
 | Key | Variable | Intended for |
 |-----|----------|-------------|
 | `Ctrl+E` | `$EDITOR` (falls back to `vi`) | Terminal editors — opened with TTY redirection |
-| `Alt+E` | `$VISUAL` (falls back to `$EDITOR`, then `vi`) | GUI editors — opened without TTY redirection |
+| `Ctrl+G` | `$VISUAL` (falls back to `$EDITOR`, then `vi`) | GUI editors — opened without TTY redirection |
 
 ```zsh
 # system/environment.local.sh
-export VISUAL=code   # alt-e
+export VISUAL=code   # ctrl-g
 export EDITOR=nvim   # ctrl-e
 ```
-
-> [!NOTE]
-> On macOS, `Alt` requires the terminal to send Option as a Meta key (`Esc+`). In iTerm2: Profiles →
-> Keys → Left Option key → `Esc+`. In Terminal.app: Settings → Keyboard → Use Option as Meta key.
 
 ### Clipboard (`Ctrl+Y`)
 

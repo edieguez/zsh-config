@@ -66,10 +66,10 @@ else
   _FZF_OPEN_CMD=''
 fi
 
-# ctrl-e opens $EDITOR (terminal); alt-e opens $VISUAL (GUI) if set.
+# ctrl-e opens $EDITOR (terminal); ctrl-g opens $VISUAL (GUI) if set.
 # ctrl-o opens selection with the system default app, then closes fzf.
 _FZF_EDITOR_BIND='ctrl-e:become(${EDITOR:-vi} {+} </dev/tty >/dev/tty)'
-_FZF_VISUAL_BIND='alt-e:become(${VISUAL:-${EDITOR:-vi}} {+})'
+_FZF_VISUAL_BIND='ctrl-g:become(${VISUAL:-${EDITOR:-vi}} {+})'
 [[ -n "$_FZF_OPEN_CMD" ]] && _FZF_OPEN_BIND="ctrl-o:execute-silent(${_FZF_OPEN_CMD} {+})+abort" || _FZF_OPEN_BIND=''
 
 # Shell helpers for transform: bindings. These run in a POSIX sh subshell spawned
