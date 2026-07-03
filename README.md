@@ -16,8 +16,9 @@ Restart your shell (or `exec zsh`) to finish setup.
 
 Optional but recommended tools — this config activates extra features when it detects them on `PATH`:
 
-- [`fzf`](https://github.com/junegunn/fzf) + [`fd`](https://github.com/sharkdp/fd) — fuzzy file/dir navigation (`CTRL-T`, `ALT-C`)
-- [`bat`](https://github.com/sharkdp/bat) — richer fzf preview (falls back to `cat`)
+- [`fzf`](https://github.com/junegunn/fzf) + [`fd`](https://github.com/sharkdp/fd) — fuzzy file/dir navigation (`Ctrl+T`, `Alt+C`/`Esc+C`, `**<Tab>` completion)
+- [`bat`](https://github.com/sharkdp/bat) — syntax-highlighted file previews in fzf (falls back to `cat`)
+- [`lsd`](https://github.com/lsd-rs/lsd) — rich directory tree previews in fzf (falls back to `ls`)
 - [`nvm`](https://github.com/nvm-sh/nvm) at `~/.nvm` — enables lazy-loaded Node
 - [`sdkman`](https://sdkman.io/) at `~/.sdkman` — enables lazy-loaded JVM tooling
 
@@ -25,15 +26,16 @@ Optional but recommended tools — this config activates extra features when it 
 
 Plugins are oh-my-zsh plugins, and they must be declared **before** oh-my-zsh is sourced.
 
-**Always-on plugins** — edit the `plugins=(...)` array in [`system/zshrc`](system/zshrc):
+**Always-on plugins** — edit the `plugins=(...)` array in [`system/init.sh`](system/init.sh):
 
 ```zsh
 plugins=(
     extract
+    fast-syntax-highlighting
+    git
     sudo
     virtualenv_py
     z
-    fast-syntax-highlighting
     my-new-plugin          # <-- add here
 )
 ```
@@ -51,7 +53,7 @@ plugins=(
 
 ## How to add paths to `PATH`
 
-`PATH` precedence, from highest to lowest, is set at the end of `system/zshrc`:
+`PATH` precedence, from highest to lowest, is set at the end of `system/init.sh`:
 
 ```shell
 bin/local  >  bin/$PLATFORM  >  bin/  >  CUSTOM_PATH  >  system $PATH
@@ -70,10 +72,10 @@ Pick the right spot based on what you're adding:
 
 Note: `bin/` is added to `PATH` non-recursively. Subdirectories like `bin/archive/` are not on `PATH`.
 
-**A toolchain directory** (like `$GOROOT/bin` or a language version manager) — extend `CUSTOM_PATH` in [`system/environment.sh`](system/environment.sh):
+**A toolchain directory** (like `$GOROOT/bin` or a language version manager) — extend `CUSTOM_PATH` in [`system/environment.sh`](system/environment.sh). `CUSTOM_PATH` is a zsh array:
 
 ```zsh
-export CUSTOM_PATH="$CARGO_HOME/bin:$GOROOT/bin:$GOPATH/bin:$HOME/.my-tool/bin"
+CUSTOM_PATH+=("$HOME/.my-tool/bin")
 ```
 
 **A path that shouldn't be committed** (private tool, work-specific directory) — export it from `system/environment.local.sh` (see next section).
@@ -94,7 +96,7 @@ Example `system/environment.local.sh`:
 ```zsh
 export OPENAI_API_KEY="sk-..."
 export WORK_VPN_HOST="vpn.example.com"
-export PATH="$HOME/work/tools/bin:$PATH"
+CUSTOM_PATH+=("$HOME/work/tools/bin")
 ```
 
 For private binaries and scripts, use `bin/local/` — also gitignored, and highest `PATH` precedence.
@@ -109,7 +111,8 @@ These files are created as needed; nothing expects them to exist. Missing `*.loc
 └── zsh-config/                     this repo (= $ZSH_CUSTOM)
     ├── system/
     │   ├── zshrc                   entry point, symlinked to ~/.zshrc
-    │   ├── environment.sh          env vars, FZF defaults, CUSTOM_PATH
+    │   ├── init.sh                 full loading sequence (sourced by zshrc)
+    │   ├── environment.sh          history opts, SDKMAN paths, CUSTOM_PATH
     │   ├── bundles.sh              conditional plugins, lazy-loads
     │   ├── aliases.sh              global aliases
     │   ├── functions.sh            global functions
@@ -119,6 +122,7 @@ These files are created as needed; nothing expects them to exist. Missing `*.loc
     ├── bin/                        scripts auto-added to PATH
     ├── lib/                        sourced helper libraries
     ├── plugins/                    custom oh-my-zsh plugins
+    │   └── fzf-improved/           fd-backed fzf integration with previews and toggles
     └── themes/                     custom oh-my-zsh themes (default: aya)
 ```
 
