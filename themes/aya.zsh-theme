@@ -59,6 +59,7 @@ _aya_git_rprompt() {
 
 _aya_async_callback() {
   local fd=$1
+  zle -F $fd
   RPROMPT="$(cat <&$fd)"
   exec {fd}<&-
   _aya_async_fd=
