@@ -8,32 +8,47 @@ API_BASE='https://wallhaven.cc/api/v1'
 
 # --- display -----------------------------------------------------------------
 
-if [[ -t 2 && -z "${NO_COLOR:-}" ]]; then
+if [[ -t 2 ]]; then IS_TTY=true; else IS_TTY=false; fi
+
+if [[ "$IS_TTY" == true && -z "${NO_COLOR:-}" ]]; then
   C_BLUE=$'\033[01;34m' C_YELLOW=$'\033[01;33m' C_RED=$'\033[01;31m'
-  C_GREEN=$'\033[01;32m' C_BOLD=$'\033[01m' C_RESET=$'\033[0m'
+  C_GREEN=$'\033[01;32m' C_CYAN=$'\033[01;36m' C_MAGENTA=$'\033[01;35m'
+  C_BOLD=$'\033[01m' C_DIM=$'\033[02m' C_RESET=$'\033[0m'
 else
-  C_BLUE='' C_YELLOW='' C_RED='' C_GREEN='' C_BOLD='' C_RESET=''
+  C_BLUE='' C_YELLOW='' C_RED='' C_GREEN='' C_CYAN='' C_MAGENTA=''
+  C_BOLD='' C_DIM='' C_RESET=''
 fi
 
-info()  { printf '%s[i] %s%s\n' "$C_BLUE" "$*" "$C_RESET" >&2; }
-warn()  { printf '%s[w] %s%s\n' "$C_YELLOW" "$*" "$C_RESET" >&2; }
-ok()    { printf '%s[✓] %s%s\n' "$C_GREEN" "$*" "$C_RESET" >&2; }
-error() { printf '%s[e] %s%s\n' "$C_RED" "$*" "$C_RESET" >&2; }
+info()  { printf '%sℹ️  %s%s\n' "$C_BLUE" "$*" "$C_RESET" >&2; }
+warn()  { printf '%s⚠️  %s%s\n' "$C_YELLOW" "$*" "$C_RESET" >&2; }
+ok()    { printf '%s✅ %s%s\n' "$C_GREEN" "$*" "$C_RESET" >&2; }
+error() { printf '%s❌ %s%s\n' "$C_RED" "$*" "$C_RESET" >&2; }
 die()   { error "$*"; exit 1; }
 
-heading()  { printf '%s%s%s\n' "$C_BOLD" "$*" "$C_RESET"; }
+heading()  { printf '%s%s%s%s\n' "$C_BOLD" "$C_CYAN" "$*" "$C_RESET"; }
 
-# Reads "key<TAB>value" lines on stdin and prints them as an aligned, bold-labeled list
+# Reads "key<TAB>value" lines on stdin and prints them as an aligned, colored-label list
 print_kv_stream() {
   local key value
   while IFS=$'\t' read -r key value; do
-    printf '  %s%-14s%s %s\n' "$C_BOLD" "$key" "$C_RESET" "$value"
+    printf '  %s%s%-14s%s %s\n' "$C_BOLD" "$C_MAGENTA" "$key" "$C_RESET" "$value"
   done
+}
+
+# color_swatch <hex> — a small true-color block followed by the hex code
+color_swatch() {
+  local hex=${1#'#'} r g b
+  if [[ "$IS_TTY" == true ]]; then
+    r=$((16#${hex:0:2})) g=$((16#${hex:2:2})) b=$((16#${hex:4:2}))
+    printf '\033[48;2;%d;%d;%dm  \033[0m %s#%s%s' "$r" "$g" "$b" "$C_DIM" "$hex" "$C_RESET"
+  else
+    printf '#%s' "$hex"
+  fi
 }
 
 help() {
   cat <<EOF
-$(heading 'Wallhaven API v1 client') — https://wallhaven.cc/help/api
+$(heading '🌄 Wallhaven API v1 client') — https://wallhaven.cc/help/api
 
 $(heading 'Usage:')
   $(basename "$0") <command> [options]
@@ -152,7 +167,7 @@ api_get() {
 # --- downloading -------------------------------------------------------------
 
 count_files() {
-  find "$1" -type f 2> /dev/null | wc -l | tr -d ' '
+  find "$1" -type f ! -name '*.part' 2> /dev/null | wc -l | tr -d ' '
 }
 
 summary() {
@@ -162,18 +177,164 @@ summary() {
   ok "Downloaded $((now - before)) new wallpapers to $dir ($now files, $total matched)"
 }
 
+file_size() {
+  stat -f%z "$1" 2> /dev/null || stat -c%s "$1" 2> /dev/null || echo 0
+}
+
+human_size() {
+  awk -v b="$1" 'BEGIN {
+    if (b >= 1048576) printf "%.1f MiB", b / 1048576
+    else printf "%.0f KiB", b / 1024
+  }'
+}
+
+human_time() {
+  awk -v s="$1" 'BEGIN {
+    if (s < 0) s = 0
+    if (s >= 60) printf "%dm%02ds", s / 60, s % 60
+    else printf "%ds", s
+  }'
+}
+
+# render_overall_bar <done> <total> <page> <page_total>
+# <page_total> of 0 or 1 hides the page indicator (single-page runs).
+render_overall_bar() {
+  local done=$1 total=$2 page=$3 page_total=$4 width=40
+  awk -v d="$done" -v t="$total" -v p="$page" -v pt="$page_total" -v w="$width" \
+    -v bold="$C_BOLD" -v cyan="$C_CYAN" -v dim="$C_DIM" \
+    -v yellow="$C_YELLOW" -v green="$C_GREEN" -v reset="$C_RESET" 'BEGIN {
+    pct = (t > 0) ? int(d * 100 / t) : 0
+    filled = int(w * pct / 100)
+    if (filled > w) filled = w
+    bar = ""
+    for (i = 0; i < filled; i++) bar = bar "█"
+    empty = ""
+    for (i = 0; i < w - filled; i++) empty = empty "░"
+    barcolor = (pct >= 100) ? green : (pct >= 40) ? cyan : yellow
+    page_s = (pt + 0 > 1) ? sprintf("  %sPage %d/%d%s", dim, p, pt, reset) : ""
+    printf "%s%sOverall%s  [%s%s%s%s%s%s] %s%3d%%%s (%d/%d)%s", \
+      bold, cyan, reset, barcolor, bar, reset, dim, empty, reset, bold, pct, reset, d, t, page_s
+  }'
+}
+
+# render_file_bar <done_bytes> <total_bytes> <elapsed_seconds>
+render_file_bar() {
+  local done=$1 total=$2 elapsed=$3 width=40
+  awk -v d="$done" -v t="$total" -v e="$elapsed" -v w="$width" \
+    -v bold="$C_BOLD" -v blue="$C_BLUE" -v dim="$C_DIM" \
+    -v yellow="$C_YELLOW" -v green="$C_GREEN" -v reset="$C_RESET" 'BEGIN {
+    pct = (t > 0) ? int(d * 100 / t) : 0
+    speed = (e > 0) ? d / e : 0
+    eta = (speed > 0 && t > d) ? int((t - d) / speed) : 0
+    filled = int(w * pct / 100)
+    if (filled > w) filled = w
+    bar = ""
+    for (i = 0; i < filled; i++) bar = bar "█"
+    empty = ""
+    for (i = 0; i < w - filled; i++) empty = empty "░"
+    barcolor = (pct >= 100) ? green : (pct >= 40) ? blue : yellow
+    speed_s = (speed >= 1048576) ? sprintf("%.1f MiB/s", speed / 1048576) : sprintf("%.0f KiB/s", speed / 1024)
+    printf "%s%sFile   %s  [%s%s%s%s%s%s] %s%3d%%%s  %s%s%s  eta %ds", \
+      bold, blue, reset, barcolor, bar, reset, dim, empty, reset, bold, pct, reset, dim, speed_s, reset, eta
+  }'
+}
+
+# progress_draw_block <overall_bar_line> <file_info_line> <file_bar_line>
+# Redraws a single persistent 3-line block in place: the overall progress bar,
+# the current file's info, and the current file's progress bar. Only ever one
+# block on screen for the whole run — never one per file.
+progress_draw_block() {
+  [[ "$IS_TTY" == true ]] || return 0
+  if [[ "${PROGRESS_DRAWN:-false}" == true ]]; then
+    printf '\033[3A\033[0J' >&2
+  fi
+  printf '%s\n%s\n%s\n' "$1" "$2" "$3" >&2
+  PROGRESS_DRAWN=true
+}
+
+progress_clear_block() {
+  if [[ "$IS_TTY" == true && "${PROGRESS_DRAWN:-false}" == true ]]; then
+    printf '\033[3A\033[0J' >&2
+  fi
+  PROGRESS_DRAWN=false
+}
+
+# download_file <url> <dest_dir> <resolution> <total_bytes>
+# Reads/updates the OVERALL_DONE/OVERALL_TOTAL globals set by the caller.
+download_file() {
+  local url=$1 dest_dir=$2 resolution=$3 total_bytes=$4
+  local filename dest tmp start elapsed size info_line overall_line file_bar_line
+
+  filename=$(basename "$url")
+  dest="$dest_dir/$filename"
+  tmp="$dest.part"
+
+  if [[ -f "$dest" && "$(file_size "$dest")" -ge "$total_bytes" ]]; then
+    OVERALL_DONE=$((OVERALL_DONE + 1))
+    return 0
+  fi
+
+  info_line="${C_BOLD}${filename}${C_RESET} ${C_DIM}·${C_RESET} ${C_CYAN}${resolution}${C_RESET} ${C_DIM}·${C_RESET} ${C_YELLOW}$(human_size "$total_bytes")${C_RESET}"
+
+  curl --silent --location --continue-at - --output "$tmp" "$url" &
+  CURRENT_DL_PID=$!
+  start=$(date +%s)
+
+  if [[ "$IS_TTY" == true ]]; then
+    while kill -0 "$CURRENT_DL_PID" 2> /dev/null; do
+      size=$(file_size "$tmp")
+      elapsed=$(( $(date +%s) - start ))
+      overall_line=$(render_overall_bar "$OVERALL_DONE" "$OVERALL_TOTAL" "$PAGE_CURRENT" "$PAGE_TOTAL")
+      file_bar_line=$(render_file_bar "$size" "$total_bytes" "$elapsed")
+      progress_draw_block "$overall_line" "$info_line" "$file_bar_line"
+      sleep 0.15
+    done
+  else
+    info "Downloading $info_line"
+  fi
+
+  if wait "$CURRENT_DL_PID"; then
+    mv "$tmp" "$dest"
+    OVERALL_DONE=$((OVERALL_DONE + 1))
+    if [[ "$IS_TTY" == true ]]; then
+      overall_line=$(render_overall_bar "$OVERALL_DONE" "$OVERALL_TOTAL" "$PAGE_CURRENT" "$PAGE_TOTAL")
+      file_bar_line=$(render_file_bar "$total_bytes" "$total_bytes" 1)
+      progress_draw_block "$overall_line" "$info_line" "$file_bar_line"
+    fi
+  else
+    progress_clear_block
+    warn "Failed to download $filename (partial file kept at $tmp for resume)"
+  fi
+
+  unset CURRENT_DL_PID
+}
+
+# Paginated listing download step: reads {path, resolution, file_size} JSON
+# lines and downloads each against the persistent overall/file progress block.
+download_page() {
+  local dir=$1 metadata=$2
+  local item url resolution size
+
+  while IFS= read -r item; do
+    [[ -z "$item" ]] && continue
+    url=$(jq -r '.path' <<< "$item")
+    resolution=$(jq -r '.resolution' <<< "$item")
+    size=$(jq -r '.file_size' <<< "$item")
+    download_file "$url" "$dir" "$resolution" "$size"
+  done < <(jq -c '.data[]' <<< "$metadata")
+}
+
 # Paginated listing download. Reads the PARAMS array plus the SEED, START_PAGE
 # and MAX_PAGES globals set by the calling command.
 download_listing() {
   local path=$1 dir=$2
   local page=$START_PAGE
-  local total='' last_page end_page metadata links before
+  local total='' last_page end_page metadata before
 
-  require_cmd wget
   mkdir -p "$dir"
   before=$(count_files "$dir")
 
-  trap 'summary "$dir" "$before" "${total:-?}"; exit 130' INT
+  trap 'kill "${CURRENT_DL_PID:-}" 2>/dev/null || true; progress_clear_block; summary "$dir" "$before" "${total:-?}"; exit 130' INT
 
   while :; do
     local page_params=(${PARAMS[@]+"${PARAMS[@]}"} --data-urlencode "page=$page")
@@ -198,16 +359,13 @@ download_listing() {
       fi
 
       info "Found $total wallpapers across $last_page pages (fetching pages $START_PAGE-$end_page)"
+      OVERALL_DONE=0
+      OVERALL_TOTAL=$total
+      PAGE_TOTAL=$end_page
     fi
 
-    info "Page $page/$end_page"
-    links=$(jq -r '.data[].path' <<< "$metadata")
-
-    if [[ -n "$links" ]]; then
-      if ! wget --continue --quiet --show-progress --directory-prefix "$dir" -i - <<< "$links"; then
-        warn "Some downloads failed on page $page"
-      fi
-    fi
+    PAGE_CURRENT=$page
+    download_page "$dir" "$metadata"
 
     if [[ "$page" -ge "$end_page" ]]; then
       break
@@ -216,6 +374,7 @@ download_listing() {
   done
 
   trap - INT
+  progress_clear_block
   summary "$dir" "$before" "$total"
 }
 
@@ -274,7 +433,7 @@ cmd_search() {
   fi
 
   if [[ "$clean" == true && -d "$dir" ]]; then
-    printf '%s[w] Delete ALL files in %s? [y/N] %s' "$C_YELLOW" "$dir" "$C_RESET" >&2
+    printf '%s⚠️  Delete ALL files in %s? [y/N] %s' "$C_YELLOW" "$dir" "$C_RESET" >&2
     local reply=''
     read -r reply || true
     case "$reply" in
@@ -307,7 +466,7 @@ cmd_wall() {
   local body
   body=$(api_get "/w/$id")
 
-  heading "Wallpaper $id"
+  heading "🖼️  Wallpaper $id"
   jq -r '.data | [
     ["URL", .url],
     ["Uploader", (.uploader.username // "-")],
@@ -319,17 +478,30 @@ cmd_wall() {
     ["Favorites", (.favorites | tostring)],
     ["Created", .created_at],
     ["Source", (if .source == "" then "-" else .source end)],
-    ["Colors", (.colors | join("  "))],
     ["Tags", ((.tags // []) | if length == 0 then "-" else map("\(.name) (#\(.id))") | join(", ") end)]
   ][] | @tsv' <<< "$body" | print_kv_stream
 
+  local swatches='' hex
+  while IFS= read -r hex; do
+    swatches+="$(color_swatch "$hex")  "
+  done < <(jq -r '.data.colors[]' <<< "$body")
+  printf '  %s%s%-14s%s %s\n' "$C_BOLD" "$C_MAGENTA" 'Colors' "$C_RESET" "$swatches"
+
   if [[ "$download" == true ]]; then
-    require_cmd wget
     mkdir -p "$WALLHAVEN_DIR"
-    local path
+    local path resolution size
     path=$(jq -r '.data.path' <<< "$body")
-    wget --continue --quiet --show-progress --directory-prefix "$WALLHAVEN_DIR" "$path"
-    ok "Saved to $WALLHAVEN_DIR/$(basename "$path")"
+    resolution=$(jq -r '.data.resolution' <<< "$body")
+    size=$(jq -r '.data.file_size' <<< "$body")
+    OVERALL_DONE=0
+    OVERALL_TOTAL=1
+    PAGE_CURRENT=1
+    PAGE_TOTAL=0
+    trap 'kill "${CURRENT_DL_PID:-}" 2>/dev/null || true; progress_clear_block; exit 130' INT
+    download_file "$path" "$WALLHAVEN_DIR" "$resolution" "$size"
+    trap - INT
+    progress_clear_block
+    ok "Saved $(basename "$path") to $WALLHAVEN_DIR"
   fi
 }
 
@@ -340,7 +512,7 @@ cmd_tag() {
   local body
   body=$(api_get "/tag/$id")
 
-  heading "Tag $id"
+  heading "🏷️  Tag $id"
   jq -r '.data | [
     ["Name", .name],
     ["Alias", (if .alias == "" then "-" else .alias end)],
@@ -395,11 +567,12 @@ cmd_collections() {
     return 0
   fi
 
-  heading "Collections${username:+ of $username}"
+  heading "📁 Collections${username:+ of $username}"
   {
     printf 'ID\tLABEL\tPUBLIC\tCOUNT\tVIEWS\n'
     jq -r '.data[] | [.id, .label, (if .public == 1 then "yes" else "no" end), .count, .views] | @tsv' <<< "$body"
-  } | column -t -s $'\t' | sed 's/^/  /'
+  } | column -t -s $'\t' | awk -v bold="$C_BOLD" -v cyan="$C_CYAN" -v reset="$C_RESET" \
+        'NR==1 { print "  " bold cyan $0 reset; next } { print "  " $0 }'
 }
 
 cmd_settings() {
@@ -408,7 +581,7 @@ cmd_settings() {
   local body
   body=$(api_get '/settings')
 
-  heading 'Account settings'
+  heading '⚙️  Account settings'
   jq -r '.data | [
     ["Thumb size", .thumb_size],
     ["Per page", (.per_page | tostring)],
