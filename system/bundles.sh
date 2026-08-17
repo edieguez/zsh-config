@@ -11,10 +11,11 @@ fi
 # Conditional plugin loading
 (( $+commands[aws] )) && plugins+=(aws)
 (( $+commands[git] )) && plugins+=(git)
+(( $+commands[go] )) && plugins+=(golang)
 (( $+commands[gradle] )) && plugins+=(gradle)
 (( $+commands[mvn] )) && plugins+=(mvn)
-(( $+commands[go] )) && plugins+=(golang)
 (( $+commands[rustc] )) && plugins+=(rust)
+(( $+commands[zoxide] )) && { plugins+=(zoxide); export ZOXIDE_CMD_OVERRIDE=cd } || plugins+=(z)
 
 # Add nvm lazy load plugin if nvm is installed
 if [ -d "$HOME/.nvm" ]; then

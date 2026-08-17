@@ -8,7 +8,6 @@ plugins=(
     git
     sudo
     virtualenv_py
-    z
 )
 
 source_if_exist() {
