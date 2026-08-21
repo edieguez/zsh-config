@@ -13,7 +13,7 @@ main() {
 
     # Ensure brew update and upgrade succeed
     brew update || { cout "01;31" "❌ Failed to update Homebrew\n"; exit 1; }
-    brew upgrade || { cout "01;31" "❌ Failed to upgrade Homebrew\n"; exit 1; }
+    brew upgrade --greedy -y || { cout "01;31" "❌ Failed to upgrade Homebrew\n"; exit 1; }
 
     # Set the Internal Field Separator to 'new line'
     local IFS='
