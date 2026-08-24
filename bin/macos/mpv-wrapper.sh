@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 # This script is a wrapper for queueing a clipboard URL/file into mpv via
-# plugins/perpetual-playlist/bin/mpv-add - appends to a running instance's
+# plugins/playlist-manager/bin/mpv-add - appends to a running instance's
 # playlist (or starts a fresh one if none is running), instead of always
 # launching a brand new, disconnected mpv process.
 #
@@ -35,7 +35,7 @@ else
     }
 fi
 
-MPV_ADD="$HOME/.config/mpv/plugins/perpetual-playlist/bin/mpv-add"
+MPV_ADD="$HOME/.config/mpv/plugins/playlist-manager/bin/mpv-add"
 
 mpv_add_flags=()
 case "${1:-}" in
