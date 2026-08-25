@@ -30,6 +30,12 @@ source "$ZSH_CUSTOM/system/environment.sh"
 source_if_exist "$ZSH_CUSTOM/system/$PLATFORM/environment.sh"
 source_if_exist "$ZSH_CUSTOM/system/environment.local.sh"
 
+# Extend fpath with any custom completion directories declared via
+# CUSTOM_FPATH (in environment.local.sh) - must happen before Oh My Zsh
+# is sourced below, since compinit (which scans fpath for completion
+# functions) runs as part of that.
+fpath=($CUSTOM_FPATH $fpath)
+
 source "$ZSH_CUSTOM/system/bundles.sh"
 source_if_exist "$ZSH_CUSTOM/system/$PLATFORM/bundles.sh"
 source_if_exist "$ZSH_CUSTOM/system/bundles.local.sh"
