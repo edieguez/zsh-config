@@ -34,6 +34,9 @@ source "$ZSH_CUSTOM/system/bundles.sh"
 source_if_exist "$ZSH_CUSTOM/system/$PLATFORM/bundles.sh"
 source_if_exist "$ZSH_CUSTOM/system/bundles.local.sh"
 
+# fpath customizations must happen before On my ZSH load
+fpath=($CUSTOM_FPATH $fpath)
+
 # Load Oh my ZSH
 source $OH_MY_ZSH/oh-my-zsh.sh
 
