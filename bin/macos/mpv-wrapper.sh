@@ -1,12 +1,12 @@
 #! /usr/bin/env bash
 # This script is a wrapper for queueing a clipboard URL/file into mpv via
-# plugins/playlist-manager/bin/mpv-add - appends to a running instance's
+# plugins/mpv-remote/bin/mpv-remote add - appends to a running instance's
 # playlist (or starts a fresh one if none is running), instead of always
 # launching a brand new, disconnected mpv process.
 #
 # Usage: mpv-wrapper.sh [-n|--next]
 #   -n, --next   insert right after whatever's currently playing, instead
-#                of appending to the end (mpv-add's own -n/--next flag)
+#                of appending to the end (mpv-remote add's own -n/--next flag)
 
 set -euo pipefail
 
@@ -35,18 +35,18 @@ else
     }
 fi
 
-MPV_ADD="$HOME/.config/mpv/plugins/playlist-manager/bin/mpv-add"
+MPV_REMOTE="$HOME/.config/mpv/plugins/mpv-remote/bin/mpv-remote"
 
-mpv_add_flags=()
+mpv_remote_flags=()
 case "${1:-}" in
     -n|--next)
-        mpv_add_flags=(-n)
+        mpv_remote_flags=(-n)
         ;;
 esac
 
 clipboard="$(pbpaste | tr -d '\n')"
 
-# mpv-add/playlist_manager.lua don't validate the item themselves (only
+# mpv-remote/playlist_manager.lua don't validate the item themselves (only
 # ctrl+v/paste-url inside mpv does) - this is the safety net for arbitrary
 # clipboard content coming from a hotkey rather than a deliberate CLI call.
 mpv_url_regex='^https?://[^[:space:]]+$'
@@ -86,11 +86,11 @@ if [[ "$clipboard" =~ $mpv_url_regex ]] || [[ -f "$clipboard" ]]; then
     # ships bash 3.2, where expanding an empty array under `set -u` throws
     # "unbound variable" (fixed in bash 4.4+, but that's what /usr/bin/env
     # bash resolves to here).
-    if output=$("$MPV_ADD" ${mpv_add_flags[@]+"${mpv_add_flags[@]}"} "$clipboard" 2>&1); then
+    if output=$("$MPV_REMOTE" add ${mpv_remote_flags[@]+"${mpv_remote_flags[@]}"} "$clipboard" 2>&1); then
         notify "$output"
     else
         last_line=$(printf '%s' "$output" | grep -v '^$' | tail -1)
-        notify_error "mpv-add failed: ${last_line:-unknown error}"
+        notify_error "mpv-remote add failed: ${last_line:-unknown error}"
         exit 1
     fi
 else
