@@ -4,9 +4,16 @@
 # playlist (or starts a fresh one if none is running), instead of always
 # launching a brand new, disconnected mpv process.
 #
+# Deliberately never uses mpv-remote add's bare (no keyword) "play now"
+# mode - that interrupts whatever's currently playing, which isn't what a
+# background clipboard-queue hotkey should ever do. Default here maps to
+# mpv-remote add's own "last" keyword (queue silently); -n/--next maps to
+# its "next" keyword (queue right after current, still without
+# interrupting it).
+#
 # Usage: mpv-wrapper.sh [-n|--next]
 #   -n, --next   insert right after whatever's currently playing, instead
-#                of appending to the end (mpv-remote add's own -n/--next flag)
+#                of appending to the end
 
 set -euo pipefail
 
@@ -37,10 +44,10 @@ fi
 
 MPV_REMOTE="$HOME/.config/mpv/plugins/mpv-remote/bin/mpv-remote"
 
-mpv_remote_flags=()
+mpv_remote_flags=(last)
 case "${1:-}" in
     -n|--next)
-        mpv_remote_flags=(-n)
+        mpv_remote_flags=(next)
         ;;
 esac
 
@@ -82,10 +89,12 @@ if ! [[ "$clipboard" =~ $mpv_url_regex ]] && ! [[ -f "$clipboard" ]]; then
 fi
 
 if [[ "$clipboard" =~ $mpv_url_regex ]] || [[ -f "$clipboard" ]]; then
-    # ${arr[@]+"${arr[@]}"} rather than a bare "${mpv_add_flags[@]}": macOS
-    # ships bash 3.2, where expanding an empty array under `set -u` throws
-    # "unbound variable" (fixed in bash 4.4+, but that's what /usr/bin/env
-    # bash resolves to here).
+    # ${arr[@]+"${arr[@]}"} rather than a bare "${mpv_remote_flags[@]}":
+    # macOS ships bash 3.2, where expanding an empty array under `set -u`
+    # throws "unbound variable" (fixed in bash 4.4+, but that's what
+    # /usr/bin/env bash resolves to here). mpv_remote_flags is never
+    # actually empty now (always "last" or "next"), but this stays
+    # defensive rather than relying on that.
     if output=$("$MPV_REMOTE" add ${mpv_remote_flags[@]+"${mpv_remote_flags[@]}"} "$clipboard" 2>&1); then
         notify "$output"
     else
