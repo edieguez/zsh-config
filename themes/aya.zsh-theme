@@ -1,3 +1,12 @@
+# If you start experimenting duplicated chars and/or dead backspaces: $TERM has no
+# terminfo entry on the remote (e.g. xterm-kitty). Oh My Zsh reads it for
+# keybindings before this theme loads, so the fix has to run earlier
+# (system/environment.sh), not here:
+#
+#   if [ -n "$TERM" ] && command -v infocmp >/dev/null 2>&1 && ! infocmp "$TERM" >/dev/null 2>&1; then
+#     export TERM=xterm-256color
+#   fi
+
 () {
   CURRENT_DIR=$fg_bold[yellow]
   USER_AT_HOST=$fg_bold[green]
