@@ -71,7 +71,6 @@ _aya_precmd() {
     zle -F $_aya_async_fd 2>/dev/null
     exec {_aya_async_fd}<&-
   fi
-  RPROMPT=
   exec {_aya_async_fd}< <(_aya_git_rprompt)
   (( _aya_async_fd > 0 )) && zle -F $_aya_async_fd _aya_async_callback
 }
