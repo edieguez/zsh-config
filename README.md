@@ -70,7 +70,7 @@ Pick the right spot based on what you're adding:
 | [`bin/linux/`](bin/linux/) | Linux-only scripts                                                    |
 | `bin/local/`               | Machine-specific scripts or binaries (gitignored, highest precedence) |
 
-Note: `bin/` is added to `PATH` non-recursively. Subdirectories like `bin/archive/` are not on `PATH`.
+Note: `bin/` is added to `PATH` non-recursively. Subdirectories are not on `PATH`.
 
 **A toolchain directory** (like `$GOROOT/bin` or a language version manager) — extend `CUSTOM_PATH` in [`system/environment.sh`](system/environment.sh). `CUSTOM_PATH` is a zsh array:
 
