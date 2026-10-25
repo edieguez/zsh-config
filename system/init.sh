@@ -52,9 +52,10 @@ unset -f source_if_exist
 
 # Build PATH (highest to lowest precedence):
 # bin/local > bin/$PLATFORM > bin/ > CUSTOM_PATH > system PATH
+typeset -U path  # drop duplicates: nested shells (tmux, exec zsh) run this file again
 typeset -a _bins
 _bins=($ZSH_CUSTOM/bin/ $CUSTOM_PATH)
 [[ $PLATFORM != "unknown" ]] && _bins=($ZSH_CUSTOM/bin/$PLATFORM $_bins)
 _bins=($ZSH_CUSTOM/bin/local $_bins)
-PATH="${(j[:])_bins}:$PATH"
+path=($_bins $path)  # array assignment, so -U above removes duplicates
 unset _bins
