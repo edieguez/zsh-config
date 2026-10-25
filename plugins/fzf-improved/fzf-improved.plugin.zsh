@@ -12,10 +12,8 @@ export FZF_DEFAULT_OPTS='
 # Matching is by name at any depth — node_modules anywhere in the tree is excluded,
 # not just at the root. To add entries without editing this file, append in
 # system/environment.local.sh: FZF_EXCLUDED_DIRS+=(my-cache)
-## Check if FZF_EXCLUDED_DIRS is already defined (e.g. in environment.local.sh) and append to it, otherwise initialize it.
-if [[ -z "${FZF_EXCLUDED_DIRS+x}" ]]; then
-  export FZF_EXCLUDED_DIRS=()
-fi
+# typeset -ga creates the array if missing and keeps any entries set earlier (e.g. in environment.local.sh).
+typeset -ga FZF_EXCLUDED_DIRS
 
 FZF_EXCLUDED_DIRS+=(
   # Language/tool build and cache

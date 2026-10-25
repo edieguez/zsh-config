@@ -35,7 +35,6 @@ plugins=(
     git
     sudo
     virtualenv_py
-    z
     my-new-plugin          # <-- add here
 )
 ```

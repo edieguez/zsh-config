@@ -12,4 +12,4 @@ alias leech='aria2c --seed-time=0'
 alias lg=lazygit
 alias mvn-sources='mvn dependency:sources dependency:resolve -Dclassifier=javadoc'
 alias ping='ping -c4'
-alias random-man='man $(find /usr/share/man/man1 -type f | shuf | head -1)'
+alias random-man='man $(find /usr/share/man/man1 -type f | sort -R | head -1)'

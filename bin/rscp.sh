@@ -11,6 +11,5 @@ fi
 
 rsync -avP \
     --compress \
-    --recursive --links --perms --times --group --owner --devices --specials \
     --human-readable \
     "$@"

@@ -11,12 +11,11 @@ set -e
 bt_status=$(rfkill list bluetooth | grep -i 'soft' | awk '{print $3}')
 
 if [ "$bt_status" == "yes" ]; then
-  # Turn on bluetooth
   rfkill unblock bluetooth
+  exit 1
 elif [ "$bt_status" == "no" ]; then
-  # Turn off bluetooth
   rfkill block bluetooth
   exit 0
+else
+  exit 2
 fi
-
-exit 1

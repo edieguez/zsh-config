@@ -24,17 +24,10 @@ google-translate() {
 }
 
 spf() {
-  os=$(uname -s)
-
-  # Linux
-  if [[ "$os" == "Linux" ]]; then
-    export SPF_LAST_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/superfile/lastdir"
-  fi
-
-  # macOS
-  if [[ "$os" == "Darwin" ]]; then
-    export SPF_LAST_DIR="$HOME/Library/Application Support/superfile/lastdir"
-  fi
+  case $PLATFORM in
+    linux) export SPF_LAST_DIR="${XDG_STATE_HOME:-$HOME/.local/state}/superfile/lastdir" ;;
+    macos) export SPF_LAST_DIR="$HOME/Library/Application Support/superfile/lastdir" ;;
+  esac
 
   command spf "$@"
 
