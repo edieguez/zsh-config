@@ -67,6 +67,10 @@ _aya_async_callback() {
 }
 
 _aya_precmd() {
+  if [[ $PWD != $_aya_last_pwd ]]; then
+    RPROMPT=
+    _aya_last_pwd=$PWD
+  fi
   if (( _aya_async_fd > 0 )); then
     zle -F $_aya_async_fd 2>/dev/null
     exec {_aya_async_fd}<&-
