@@ -54,3 +54,44 @@ y() {
   [ "$cwd" != "$PWD" ] && [ -d "$cwd" ] && builtin cd -- "$cwd"
   command rm -f -- "$tmp"
 }
+
+# Run a command, then notify when it finishes: desktop notification where available, terminal bell otherwise
+n() {
+    local command="$1"
+    shift
+
+    # Escape arguments to avoid problems with quotes
+    local arguments
+    printf -v arguments "%q " "${@[@]}"
+
+    eval "$command $arguments"
+    local exit_code=$?
+
+    local message sound icon
+    if [ $exit_code -eq 0 ]; then
+        message="$command ${arguments}executed successfully"
+        sound=Purr icon=dialog-ok
+    else
+        message="$command ${arguments}executed with errors [$exit_code]"
+        sound=Basso icon=dialog-error
+    fi
+
+    if (( $+commands[terminal-notifier] )); then
+        terminal-notifier -title "$command" -message "$message" -appIcon "Terminal" -sound "$sound"
+    elif (( $+commands[osascript] )); then
+        osascript -e "display notification \"$message\" with title \"$command\" sound name \"$sound\""
+    elif (( $+commands[notify-send] )); then
+        notify-send --app-name "$command" --expire-time 15000 --icon "$icon" "$message"
+        if (( $+commands[paplay] )); then
+            if [ $exit_code -eq 0 ]; then
+                paplay /usr/share/sounds/freedesktop/stereo/complete.oga &> /dev/null
+            else
+                paplay /usr/share/sounds/freedesktop/stereo/dialog-error.oga &> /dev/null
+            fi
+        fi
+    else
+        tput bel
+    fi
+
+    return $exit_code
+}
