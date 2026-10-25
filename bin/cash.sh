@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Check for API Layer token
-if [[ -z "$API_LAYER_TOKEN" ]]; then
+if [[ -z "${API_LAYER_TOKEN:-}" ]]; then
     echo "API_LAYER_TOKEN variable not set. Get a token from https://exchangeratesapi.io"
     exit 1
 fi

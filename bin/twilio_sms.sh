@@ -31,4 +31,4 @@ curl --silent -X POST "https://api.twilio.com/2010-04-01/Accounts/$TWILIO_ACCOUN
   --data-urlencode "Body=$BODY" \
   --data-urlencode "From=$TWILIO_NUMBER" \
   --data-urlencode "To=$TO" \
-  -u "$TWILIO_AUTH_TOKEN" | jq
+  -u "$TWILIO_ACCOUNT_SID:$TWILIO_AUTH_TOKEN" | jq

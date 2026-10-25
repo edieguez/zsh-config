@@ -9,9 +9,10 @@ echo -e "\E[?25l\E[44m\E[2J"
 M=/tmp/cat_orig.mp3
 [ ! -f $M ] && wget http://nyan.cat/music/original.mp3 -O $M >/dev/null 2>&1
 while true; do mplayer $M > /dev/null 2>&1; done &
+music_pid=$!
 
 # easy way to reset terminal and exit subprocesses
-trap "reset;killall nyan_cat.sh" 2
+trap 'kill $music_pid 2>/dev/null; killall mplayer 2>/dev/null; reset; kill 0' 2
 
 ## Nyan cat ANSI picture data, my own creation :P, size 38 x 11
 # Compressed version of picture

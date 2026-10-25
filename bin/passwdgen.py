@@ -1,21 +1,11 @@
-#! /usr/bin/env python
-"""Symple python script to generate secure passwords."""
+#! /usr/bin/env python3
+"""Generate a random password of letters and digits (default length 16)."""
 
-import random
+import secrets
 import string
-
 from sys import argv
 
+length = int(argv[1]) if len(argv) > 1 else 16
+alphabet = string.ascii_letters + string.digits
 
-password = str()
-length = 16 if not len(argv) > 1 else int(argv[1])
-
-for i in range(length):
-    use_letter = random.choice([True, False])
-
-    if use_letter:
-        password += random.choice(string.letters)
-    else:
-        password += random.choice(string.digits)
-
-print(password)
+print(''.join(secrets.choice(alphabet) for _ in range(length)))

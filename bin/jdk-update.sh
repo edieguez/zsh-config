@@ -16,7 +16,7 @@ declare -a sdk_versions=(
 for sdk_version in "${sdk_versions[@]}"; do
     echo -n "[$sdk_version]"
 
-    type=$(echo "$sdk_version" | sed 's/^[0-9\.\-]\+//g')
+    type=$(echo "$sdk_version" | sed -E 's/^[0-9.-]+//')
     base_version=$(echo $sdk_version | grep -Eio '^[0-9]+')
     new_version=$(echo "$sdk_list" |\
         awk -F '|' 'NF == 6 {print $NF}' |\

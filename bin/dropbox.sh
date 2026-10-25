@@ -30,8 +30,9 @@ if [[ -n "$resync" ]]; then
   echo "🔄 Syncing — $resync is source of truth${dry_run:+ (dry run)}..."
   rclone sync "${base_flags[@]}" "$src" "$dst" "${extra_args[@]}" ||
     {
-      echo "❌ Sync failed (exit code $?)." >&2
-      exit $?
+      rc=$?
+      echo "❌ Sync failed (exit code $rc)." >&2
+      exit $rc
     }
 
   if [[ -n "$dry_run" ]]; then
@@ -42,8 +43,9 @@ if [[ -n "$resync" ]]; then
   echo "↔️ Reinitializing bisync state..."
   rclone bisync "${base_flags[@]}" --resync "$DROPBOX_DIR" "$DROPBOX_REMOTE:" "${extra_args[@]}" ||
     {
-      echo "❌ Bisync reinit failed (exit code $?)." >&2
-      exit $?
+      rc=$?
+      echo "❌ Bisync reinit failed (exit code $rc)." >&2
+      exit $rc
     }
   echo "✅ Resync complete."
   exit 0

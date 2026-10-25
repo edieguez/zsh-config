@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 
 '''
 Simple Python script to download OpenVPN configs from VPN Gate.
@@ -90,7 +90,7 @@ def parse_arguments() -> Namespace:
 
 args = parse_arguments()
 
-SERVERS_CSV_URL = 'http://www.vpngate.net/api/iphone'
+SERVERS_CSV_URL = 'https://www.vpngate.net/api/iphone'
 HEADERS_COUNT = 2
 SPEED_SORT = args.speed
 

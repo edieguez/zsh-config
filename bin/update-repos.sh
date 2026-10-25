@@ -18,6 +18,7 @@ fd -t directory --hidden --no-ignore-vcs '^.git$' $target | while read -r repo; 
 
 	if [ ${#remotes[@]} -eq 0 ]; then
 		echo "No remotes found in $repo"
+		popd 2>&1 >/dev/null
 		continue
 	fi
 
