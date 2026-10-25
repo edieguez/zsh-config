@@ -19,18 +19,19 @@ activate() {
         source "$VENV_HOME/$venv_name/bin/activate"
     else
         echo $'\e[01;34m'"[i] Creating and activating virtual environment: $venv_name"$'\e[0m'
-        $PYTHON_COMMAND -m venv "$VENV_HOME/$venv_name"
-        source "$VENV_HOME/$venv_name/bin/activate"
+        # Stop here on failure: otherwise the pip installs below would land in the system Python
+        $PYTHON_COMMAND -m venv "$VENV_HOME/$venv_name" || return 1
+        source "$VENV_HOME/$venv_name/bin/activate" || return 1
 
         $PYTHON_COMMAND -m pip install -U pip autopep8 ipython ${=VENV_EXTRA_PACKAGES}
 
-        for requirements_file in requirements.txt pyproject.toml setup.py; do
-            if [ -f "$requirements_file" ]; then
-                echo $'\e[01;34m'"[i] Installing packages from $requirements_file"$'\e[0m'
-                $PYTHON_COMMAND -m pip install -r "$requirements_file"
-                break
-            fi
-        done
+        if [ -f requirements.txt ]; then
+            echo $'\e[01;34m[i] Installing packages from requirements.txt\e[0m'
+            $PYTHON_COMMAND -m pip install -r requirements.txt
+        elif [ -f pyproject.toml ] || [ -f setup.py ]; then
+            echo $'\e[01;34m[i] Installing project in editable mode\e[0m'
+            $PYTHON_COMMAND -m pip install -e .
+        fi
     fi
 }
 
