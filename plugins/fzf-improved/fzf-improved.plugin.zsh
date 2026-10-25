@@ -70,7 +70,7 @@ fi
 # ctrl-o opens selection with the system default app, then closes fzf.
 _FZF_EDITOR_BIND='ctrl-e:become(${EDITOR:-vi} {+} </dev/tty >/dev/tty)'
 _FZF_VISUAL_BIND='ctrl-g:become(${VISUAL:-${EDITOR:-vi}} {+})'
-[[ -n "$_FZF_OPEN_CMD" ]] && _FZF_OPEN_BIND="ctrl-o:execute-silent(${_FZF_OPEN_CMD} {+})+abort" || _FZF_OPEN_BIND=''
+[[ -n "$_FZF_OPEN_CMD" ]] && _FZF_OPEN_BIND="--bind='ctrl-o:execute-silent(${_FZF_OPEN_CMD} {+})+abort'" || _FZF_OPEN_BIND=''
 
 # Shell helpers for transform: bindings. These run in a POSIX sh subshell spawned
 # by fzf, so they are inlined as a string and eval'd at bind time — not zsh functions.
@@ -118,8 +118,8 @@ export FZF_CTRL_T_OPTS="
   --bind='ctrl-\\:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_action vis'
   --bind='${_FZF_EDITOR_BIND}'
   --bind='${_FZF_VISUAL_BIND}'
-  --bind='${_FZF_OPEN_BIND}'
-  --bind='ctrl-y:become(printf %s \$(realpath {}) | ${_FZF_COPY_CMD})'
+  ${_FZF_OPEN_BIND}
+  --bind='ctrl-y:become(printf %s \"\$(realpath {})\" | ${_FZF_COPY_CMD})'
 "
 
 # Alt+C (Linux) / Esc+C (macOS) — fuzzy directory navigator.
@@ -130,8 +130,8 @@ export FZF_ALT_C_OPTS="
   --preview='lsd -lh --tree --depth 2 --color=always {} 2>/dev/null || ls -lh --color=always {}'
   --preview-window=right:60%:wrap:border-left
   --bind='ctrl-\\:transform:eval \"\$FZF_IMPROVED_HELPERS\"; _fzf_action vis'
-  --bind='${_FZF_OPEN_BIND}'
-  --bind='ctrl-y:become(printf %s \$(realpath {}) | ${_FZF_COPY_CMD})'
+  ${_FZF_OPEN_BIND}
+  --bind='ctrl-y:become(printf %s \"\$(realpath {})\" | ${_FZF_COPY_CMD})'
 "
 
 # Ctrl+R — history search.
@@ -149,10 +149,10 @@ export FZF_COMPLETION_OPTS="
 # --hidden includes dotfiles. FZF_EXCLUDED_DIRS is applied for performance —
 # traversing node_modules/.cargo/.git etc. makes completion unusably slow.
 _fzf_compgen_path() {
-  fd --type f --follow --no-ignore --hidden "${_fzf_exclude_opts[@]}"
+  fd --type f --follow --no-ignore --hidden "${_fzf_exclude_opts[@]}" . "$1"
 }
 
 # Candidate list for ** directory completion.
 _fzf_compgen_dir() {
-  fd --type d --follow --no-ignore --hidden "${_fzf_exclude_opts[@]}"
+  fd --type d --follow --no-ignore --hidden "${_fzf_exclude_opts[@]}" . "$1"
 }
