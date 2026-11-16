@@ -17,3 +17,7 @@ if [ -d "$HOME/.sdkman" ]; then
     "$SDKMAN_DIR/candidates/maven/current/bin"
   )
 fi
+
+# Go configuration
+#export GOROOT="/opt/go"
+export GOPATH="$HOME/.local/share/go"
