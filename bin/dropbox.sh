@@ -15,7 +15,7 @@ for arg in "$@"; do
   esac
 done
 
-base_flags=(--verbose --exclude ".DS_Store" --checksum)
+base_flags=(--verbose --exclude ".DS_Store" --checksum --checkers 32)
 [[ -n "$dry_run" ]] && base_flags+=(--dry-run)
 
 if [[ -n "$resync" ]]; then
